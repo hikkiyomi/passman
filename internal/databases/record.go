@@ -42,9 +42,9 @@ func (r Record) Decrypt(encryptor encryption.Encryptor) Record {
 
 func (r Record) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
-		Owner   string
-		Service string
-		Data    string
+		Owner   string `json:"owner"`
+		Service string `json:"service"`
+		Data    string `json:"data"`
 	}{
 		Owner:   r.Owner,
 		Service: r.Service,
