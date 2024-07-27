@@ -20,17 +20,5 @@ var removeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(removeCmd)
-
-	rootCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	rootCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
-	rootCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
-
-	rootCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	rootCmd.MarkFlagRequired("user")
-
-	rootCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	rootCmd.MarkFlagRequired("password")
-
-	rootCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
 	rootCmd.MarkFlagRequired("service")
 }

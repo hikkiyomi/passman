@@ -31,6 +31,18 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+
+	rootCmd.PersistentFlags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	rootCmd.PersistentFlags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
+	rootCmd.PersistentFlags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	rootCmd.PersistentFlags().StringVar(&service, "service", "", "specifies the service of the saving data.")
+	rootCmd.PersistentFlags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
+
+	rootCmd.PersistentFlags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
+	rootCmd.MarkFlagRequired("user")
+
+	rootCmd.PersistentFlags().StringVar(&masterPassword, "password", "", "specifies the master password.")
+	rootCmd.MarkFlagRequired("password")
 }
 
 func initConfig() {
