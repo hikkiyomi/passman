@@ -157,8 +157,20 @@ func (d *Database) FindByOwnerAndService(owner, service string) *Record {
 	return result
 }
 
+// This check is mandatory.
+// Without it everybody can manipulate with your secure data.
+// If user has provided incorrect master password or salt,
+// they will be given nothing.
+func (d *Database) checkIfRecordExists(owner, service string) bool {
+	return d.FindByOwnerAndService(owner, service) != nil
+}
+
 // Updates the data in `storage` table matching by owner and service.
 func (d *Database) Update(record Record) {
+	if !d.checkIfRecordExists(record.Owner, record.Service) {
+		return
+	}
+
 	encryptedRecord := record.Encrypt(d.encryptor)
 
 	_, err := d.database.Exec(
@@ -179,18 +191,28 @@ func (d *Database) Update(record Record) {
 }
 
 // Deletes all passwords from `storage` table matching by owner and service.
-func (d *Database) Delete(record Record) {
+func (d *Database) DeleteByOwnerAndService(owner, service string) {
+	if !d.checkIfRecordExists(owner, service) {
+		return
+	}
+
 	_, err := d.database.Exec(
 		`
 		DELETE FROM storage
 		WHERE owner = ?
 			AND service = ?;
 		`,
-		record.Owner,
-		record.Service,
+		owner,
+		service,
 	)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Deletes all passwords from `storage` table matching by owner and service.
+// This method completely ignores data of the record.
+func (d *Database) Delete(record Record) {
+	d.DeleteByOwnerAndService(record.Owner, record.Service)
 }
