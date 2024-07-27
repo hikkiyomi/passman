@@ -40,21 +40,16 @@ func newDatabase(database *sql.DB, path string, encryptor encryption.Encryptor) 
 }
 
 // Creates a connection to database.
-// `path` variable points to a directory where database "passman.db" reside, e.g. $HOME.
+// `path` is a path to your database, e.g. $HOME/passman/supersecret.db
 // If you want to create a new database, put your desirable path to it as an argument.
 func Open(path string, encryptor encryption.Encryptor) *Database {
-	if path[len(path)-1] != '/' {
-		path += "/"
-	}
-
-	absPath := path + "passman.db"
-	db, err := sql.Open("sqlite3", absPath)
+	db, err := sql.Open("sqlite3", path)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return newDatabase(db, absPath, encryptor)
+	return newDatabase(db, path, encryptor)
 }
 
 // Deletes the file where the whole database resides.

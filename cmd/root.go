@@ -10,8 +10,6 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "passman",
 	Short: "passman is a CLI application for managing your passwords. Use `passman --help` for more information.",
-	Run: func(cmd *cobra.Command, args []string) {
-	},
 }
 
 func Execute() {
