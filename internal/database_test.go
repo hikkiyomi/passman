@@ -1,6 +1,7 @@
 package internal_test
 
 import (
+	"log"
 	"testing"
 
 	"github.com/hikkiyomi/passman/internal"
@@ -71,14 +72,55 @@ func TestInsert(t *testing.T) {
 	}
 
 	if found := database.FindByOwner("me"); len(found) != 2 {
-		t.Fatalf("expected 2 records with owner `me`, but found %d", len(found))
+		t.Fatalf("expected 2 records with owner `me` but found %d", len(found))
 	}
 
 	if found := database.FindByOwnerAndService("me", "another service"); found == nil {
-		t.Fatal("expected finding the record with owner `me` and service `another service`, but found nil.")
+		t.Fatal("expected finding the record with owner `me` and service `another service` but found nothing.")
 	}
 
 	if found := database.FindByOwner("you"); len(found) != 1 {
-		t.Fatalf("expected 2 records with owner `you`, but found %d", len(found))
+		t.Fatalf("expected 2 records with owner `you` but found %d", len(found))
+	}
+
+	if found := database.FindAll(); len(found) != 3 {
+		t.Fatalf("expected 3 records in total but found %d", len(found))
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	database := internal.Open(".", aesEncryptor)
+	defer database.Drop()
+
+	record := internal.Record{
+		Owner:   "me",
+		Service: "service",
+		Data:    []byte("kek"),
+	}
+	database.Insert(record)
+
+	record.Data = []byte("new kek")
+	database.Update(record)
+
+	if found := database.FindByOwnerAndService("me", "service"); string(found.Data) != string(record.Data) {
+		t.Fatalf("expected %v but found %v", found.Data, record.Data)
+	}
+}
+
+func TestDelete(t *testing.T) {
+	database := internal.Open(".", aesEncryptor)
+	defer database.Drop()
+
+	record := internal.Record{
+		Owner:   "me",
+		Service: "service",
+		Data:    []byte("data"),
+	}
+
+	database.Insert(record)
+	database.Delete(record)
+
+	if found := database.FindAll(); len(found) != 0 {
+		log.Fatalf("expected 0 records in database but found %d", len(found))
 	}
 }

@@ -84,23 +84,7 @@ func (d *Database) Insert(record Record) {
 	}
 }
 
-func rowsToRecords(rows *sql.Rows) []Record {
-	result := make([]Record, 0)
-
-	for rows.Next() {
-		var record Record
-		record.Owner = owner
-
-		if err := record.Scan(rows, d.encryptor); err != nil {
-			log.Fatal(err)
-		}
-
-		result = append(result, record)
-	}
-
-	return result
-}
-
+// Returns all records from table `storage`.
 func (d *Database) FindAll() []Record {
 	rows, err := d.database.Query(
 		`
@@ -116,8 +100,17 @@ func (d *Database) FindAll() []Record {
 	result := make([]Record, 0)
 
 	for rows.Next() {
+		var record Record
 
+		if err := rows.Scan(&record.Owner, &record.Service, &record.Data); err != nil {
+			log.Fatal(err)
+		}
+
+		record = record.Decrypt(d.encryptor)
+		result = append(result, record)
 	}
+
+	return result
 }
 
 // Retrieves tuples from `storage` table by owner.
@@ -137,6 +130,20 @@ func (d *Database) FindByOwner(owner string) []Record {
 		log.Fatal(err)
 	}
 
+	result := make([]Record, 0)
+
+	for rows.Next() {
+		record := Record{Owner: owner}
+
+		if err := rows.Scan(&record.Service, &record.Data); err != nil {
+			log.Fatal(err)
+		}
+
+		record = record.Decrypt(d.encryptor)
+		result = append(result, record)
+	}
+
+	return result
 }
 
 // Retrieves the only tuple from `storage` table matching by owner and service,

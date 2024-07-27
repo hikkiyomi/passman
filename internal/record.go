@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"database/sql"
 	"encoding/base64"
 	"log"
 
@@ -12,16 +11,6 @@ type Record struct {
 	Owner   string
 	Service string
 	Data    []byte
-}
-
-func (r *Record) Scan(rows *sql.Rows, encryptor encryption.Encryptor, scanData ...any) error {
-	err := rows.Scan(scanData...)
-
-	r.Service = service
-	r.Data = []byte(encryptedData)
-	*r = r.Decrypt(encryptor)
-
-	return err
 }
 
 func (r Record) Encrypt(encryptor encryption.Encryptor) Record {
