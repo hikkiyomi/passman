@@ -2,6 +2,7 @@ package databases
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"log"
 
 	"github.com/hikkiyomi/passman/internal/encryption"
@@ -37,4 +38,16 @@ func (r Record) Decrypt(encryptor encryption.Encryptor) Record {
 		Service: r.Service,
 		Data:    resultingData,
 	}
+}
+
+func (r Record) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Owner   string
+		Service string
+		Data    string
+	}{
+		Owner:   r.Owner,
+		Service: r.Service,
+		Data:    string(r.Data),
+	})
 }
