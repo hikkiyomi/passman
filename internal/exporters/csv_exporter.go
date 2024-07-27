@@ -29,7 +29,9 @@ func (e csvExporter) Import() []databases.Record {
 	defer f.Close()
 
 	r := csv.NewReader(f)
+	r.Comma = e.comma
 	records := make([]databases.Record, 0)
+	haveReadColumns := false
 
 	for {
 		data, err := r.Read()
@@ -40,6 +42,11 @@ func (e csvExporter) Import() []databases.Record {
 
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if !haveReadColumns {
+			haveReadColumns = true
+			continue
 		}
 
 		records = append(records, databases.Record{

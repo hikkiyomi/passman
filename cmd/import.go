@@ -34,6 +34,7 @@ func init() {
 	importCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
 	importCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
 	importCmd.Flags().StringVar(&importerType, "import-type", "csv", "specifies the file type to import from.")
+	importCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
 
 	importCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
 	importCmd.MarkFlagRequired("user")
