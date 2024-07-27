@@ -1,6 +1,12 @@
 package internal
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/base64"
+	"log"
+
+	"github.com/hikkiyomi/passman/internal/encryption"
+)
 
 type Record struct {
 	Owner   string
@@ -8,11 +14,41 @@ type Record struct {
 	Data    []byte
 }
 
-func (r *Record) Scan(rows *sql.Rows) error {
-	var data string
+func (r *Record) Scan(rows *sql.Rows, encryptor encryption.Encryptor) error {
+	var service string
+	var encryptedData string
 
-	err := rows.Scan(&r.Owner, &r.Service, &data)
-	r.Data = []byte(data)
+	err := rows.Scan(&service, &encryptedData)
+
+	r.Service = service
+	r.Data = []byte(encryptedData)
+	*r = r.Decrypt(encryptor)
 
 	return err
+}
+
+func (r Record) Encrypt(encryptor encryption.Encryptor) Record {
+	encryptedData := encryptor.Encrypt(r.Data)
+	resultingData := base64.StdEncoding.EncodeToString(encryptedData)
+
+	return Record{
+		Owner:   r.Owner,
+		Service: r.Service,
+		Data:    []byte(resultingData),
+	}
+}
+
+func (r Record) Decrypt(encryptor encryption.Encryptor) Record {
+	decodedData, err := base64.StdEncoding.DecodeString(string(r.Data))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resultingData := encryptor.Decrypt(decodedData)
+
+	return Record{
+		Owner:   r.Owner,
+		Service: r.Service,
+		Data:    resultingData,
+	}
 }

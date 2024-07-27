@@ -4,16 +4,18 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/hikkiyomi/passman/internal/encryption"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Database struct {
-	database *sql.DB
-	path     string
+	database  *sql.DB
+	path      string
+	encryptor encryption.Encryptor
 }
 
 // Initializes a database and creates table `storage` if it does not exist.
-func newDatabase(database *sql.DB, path string) *Database {
+func newDatabase(database *sql.DB, path string, encryptor encryption.Encryptor) *Database {
 	_, err := database.Exec(
 		`
 		CREATE TABLE IF NOT EXISTS storage (
@@ -30,15 +32,16 @@ func newDatabase(database *sql.DB, path string) *Database {
 	}
 
 	return &Database{
-		database: database,
-		path:     path,
+		database:  database,
+		path:      path,
+		encryptor: encryptor,
 	}
 }
 
 // Creates a connection to database.
 // `path` variable points to a directory where database "passman.db" reside, e.g. $HOME.
 // If you want to create a new database, put your desirable path to it as an argument.
-func Open(path string) *Database {
+func Open(path string, encryptor encryption.Encryptor) *Database {
 	if path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
 	}
@@ -50,19 +53,21 @@ func Open(path string) *Database {
 		log.Fatal(err)
 	}
 
-	return newDatabase(db, absPath)
+	return newDatabase(db, absPath, encryptor)
 }
 
 // Inserts a record into `storage` table.
 func (d *Database) Insert(record Record) {
+	encryptedRecord := record.Encrypt(d.encryptor)
+
 	_, err := d.database.Exec(
 		`
 		INSERT INTO storage (owner, service, data)
 		VALUES (?, ?, ?);
 		`,
-		record.Owner,
-		record.Service,
-		string(record.Data),
+		encryptedRecord.Owner,
+		encryptedRecord.Service,
+		string(encryptedRecord.Data),
 	)
 
 	if err != nil {
@@ -91,8 +96,9 @@ func (d *Database) FindByOwner(owner string) []Record {
 
 	for rows.Next() {
 		var record Record
+		record.Owner = owner
 
-		if err := record.Scan(rows); err != nil {
+		if err := record.Scan(rows, d.encryptor); err != nil {
 			log.Fatal(err)
 		}
 
@@ -120,6 +126,8 @@ func (d *Database) FindByOwnerAndService(owner, service string) *Record {
 
 // Updates the data in `storage` table matching by owner and service.
 func (d *Database) Update(record Record) {
+	encryptedRecord := record.Encrypt(d.encryptor)
+
 	_, err := d.database.Exec(
 		`
 		UPDATE storage
@@ -127,9 +135,9 @@ func (d *Database) Update(record Record) {
 		WHERE owner = ?
 			AND service = ?;
 		`,
-		string(record.Data),
-		record.Owner,
-		record.Service,
+		string(encryptedRecord.Data),
+		encryptedRecord.Owner,
+		encryptedRecord.Service,
 	)
 
 	if err != nil {
