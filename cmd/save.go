@@ -38,6 +38,20 @@ var saveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(saveCmd)
-	rootCmd.MarkFlagRequired("service")
-	rootCmd.MarkFlagRequired("data")
+
+	saveCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	saveCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
+	saveCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+
+	saveCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
+	saveCmd.MarkFlagRequired("user")
+
+	saveCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
+	saveCmd.MarkFlagRequired("password")
+
+	saveCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
+	saveCmd.MarkFlagRequired("service")
+
+	saveCmd.Flags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
+	saveCmd.MarkFlagRequired("data")
 }
