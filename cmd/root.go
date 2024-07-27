@@ -7,6 +7,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	saltEnv         string
+	path            string
+	user            string
+	masterPassword  string
+	service         string
+	data            string
+	chosenEncryptor string
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "passman",
 	Short: "passman is a CLI application for managing your passwords. Use `passman --help` for more information.",
