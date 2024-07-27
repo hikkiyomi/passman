@@ -24,6 +24,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.Flags().StringP("salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	rootCmd.MarkFlagRequired("salt")
 }
 
 func initConfig() {
