@@ -27,8 +27,7 @@ var saveCmd = &cobra.Command{
 			log.Fatal("Couldn't find any salt in provided env variable")
 		}
 
-		kdf := encryption.NewArgon2Kdf([]byte(salt), 0, 0, 0, 0)
-		encryptor := encryption.NewAesEncryptor(kdf, masterPassword)
+		encryptor := encryption.GetEncryptor("aes", masterPassword, salt)
 		database := databases.Open(path, encryptor)
 
 		record := databases.Record{

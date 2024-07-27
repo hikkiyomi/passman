@@ -8,17 +8,17 @@ import (
 	"log"
 )
 
-type AesEncryptor struct {
+type aesEncryptor struct {
 	secretKey []byte
 }
 
-func NewAesEncryptor(keygen KeyGenerator, password string) AesEncryptor {
-	return AesEncryptor{
+func NewAesEncryptor(keygen KeyGenerator, password string) aesEncryptor {
+	return aesEncryptor{
 		secretKey: keygen.Generate([]byte(password)),
 	}
 }
 
-func (encryptor AesEncryptor) Encrypt(sensitiveData []byte) []byte {
+func (encryptor aesEncryptor) Encrypt(sensitiveData []byte) []byte {
 	aes, err := aes.NewCipher(encryptor.secretKey)
 	if err != nil {
 		log.Fatal(err)
@@ -39,7 +39,7 @@ func (encryptor AesEncryptor) Encrypt(sensitiveData []byte) []byte {
 	return cipherText
 }
 
-func (encryptor AesEncryptor) Decrypt(encryptedData []byte) []byte {
+func (encryptor aesEncryptor) Decrypt(encryptedData []byte) []byte {
 	aes, err := aes.NewCipher(encryptor.secretKey)
 	if err != nil {
 		log.Fatal(err)
