@@ -1,10 +1,10 @@
-package internal_test
+package databases_test
 
 import (
 	"log"
 	"testing"
 
-	"github.com/hikkiyomi/passman/internal"
+	"github.com/hikkiyomi/passman/internal/databases"
 	"github.com/hikkiyomi/passman/internal/encryption"
 )
 
@@ -15,17 +15,17 @@ var (
 )
 
 func TestEncryption(t *testing.T) {
-	databaseWithEncryption := internal.Open(".", aesEncryptor)
+	databaseWithEncryption := databases.Open(".", aesEncryptor)
 	defer databaseWithEncryption.Drop()
 
-	record := internal.Record{
+	record := databases.Record{
 		Owner:   "me",
 		Service: "some service",
 		Data:    []byte("sike u thought"),
 	}
 	databaseWithEncryption.Insert(record)
 
-	databaseWithNoEncryption := internal.Open(".", &noOpEncryptor)
+	databaseWithNoEncryption := databases.Open(".", &noOpEncryptor)
 	foundRecord := databaseWithNoEncryption.FindByOwnerAndService("me", "some service")
 
 	if foundRecord.Owner != record.Owner ||
@@ -46,7 +46,7 @@ func TestEncryption(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	collectionToInsert := []internal.Record{
+	collectionToInsert := []databases.Record{
 		{
 			Owner:   "me",
 			Service: "hehe",
@@ -64,7 +64,7 @@ func TestInsert(t *testing.T) {
 		},
 	}
 
-	database := internal.Open(".", aesEncryptor)
+	database := databases.Open(".", aesEncryptor)
 	defer database.Drop()
 
 	for _, record := range collectionToInsert {
@@ -89,10 +89,10 @@ func TestInsert(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	database := internal.Open(".", aesEncryptor)
+	database := databases.Open(".", aesEncryptor)
 	defer database.Drop()
 
-	record := internal.Record{
+	record := databases.Record{
 		Owner:   "me",
 		Service: "service",
 		Data:    []byte("kek"),
@@ -108,10 +108,10 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	database := internal.Open(".", aesEncryptor)
+	database := databases.Open(".", aesEncryptor)
 	defer database.Drop()
 
-	record := internal.Record{
+	record := databases.Record{
 		Owner:   "me",
 		Service: "service",
 		Data:    []byte("data"),
