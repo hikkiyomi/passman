@@ -3,6 +3,7 @@ package internal
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	"github.com/hikkiyomi/passman/internal/encryption"
 	_ "github.com/mattn/go-sqlite3"
@@ -42,11 +43,11 @@ func newDatabase(database *sql.DB, path string, encryptor encryption.Encryptor) 
 // `path` variable points to a directory where database "passman.db" reside, e.g. $HOME.
 // If you want to create a new database, put your desirable path to it as an argument.
 func Open(path string, encryptor encryption.Encryptor) *Database {
-	if path[len(path)-1] == '/' {
-		path = path[:len(path)-1]
+	if path[len(path)-1] != '/' {
+		path += "/"
 	}
 
-	absPath := path + "/passman.db"
+	absPath := path + "passman.db"
 	db, err := sql.Open("sqlite3", absPath)
 
 	if err != nil {
@@ -54,6 +55,14 @@ func Open(path string, encryptor encryption.Encryptor) *Database {
 	}
 
 	return newDatabase(db, absPath, encryptor)
+}
+
+// Deletes the file where the whole database resides.
+func (d *Database) Drop() {
+	err := os.Remove(d.path)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Inserts a record into `storage` table.
@@ -75,6 +84,42 @@ func (d *Database) Insert(record Record) {
 	}
 }
 
+func rowsToRecords(rows *sql.Rows) []Record {
+	result := make([]Record, 0)
+
+	for rows.Next() {
+		var record Record
+		record.Owner = owner
+
+		if err := record.Scan(rows, d.encryptor); err != nil {
+			log.Fatal(err)
+		}
+
+		result = append(result, record)
+	}
+
+	return result
+}
+
+func (d *Database) FindAll() []Record {
+	rows, err := d.database.Query(
+		`
+		SELECT *
+		FROM storage;
+		`,
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result := make([]Record, 0)
+
+	for rows.Next() {
+
+	}
+}
+
 // Retrieves tuples from `storage` table by owner.
 func (d *Database) FindByOwner(owner string) []Record {
 	rows, err := d.database.Query(
@@ -92,20 +137,6 @@ func (d *Database) FindByOwner(owner string) []Record {
 		log.Fatal(err)
 	}
 
-	result := make([]Record, 0)
-
-	for rows.Next() {
-		var record Record
-		record.Owner = owner
-
-		if err := record.Scan(rows, d.encryptor); err != nil {
-			log.Fatal(err)
-		}
-
-		result = append(result, record)
-	}
-
-	return result
 }
 
 // Retrieves the only tuple from `storage` table matching by owner and service,

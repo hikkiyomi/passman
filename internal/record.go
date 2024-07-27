@@ -14,11 +14,8 @@ type Record struct {
 	Data    []byte
 }
 
-func (r *Record) Scan(rows *sql.Rows, encryptor encryption.Encryptor) error {
-	var service string
-	var encryptedData string
-
-	err := rows.Scan(&service, &encryptedData)
+func (r *Record) Scan(rows *sql.Rows, encryptor encryption.Encryptor, scanData ...any) error {
+	err := rows.Scan(scanData...)
 
 	r.Service = service
 	r.Data = []byte(encryptedData)
