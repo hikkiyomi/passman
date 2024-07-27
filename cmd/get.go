@@ -28,7 +28,7 @@ var getCmd = &cobra.Command{
 			result = append(result, database.FindByOwner(user)...)
 		}
 
-		toPrint, err := json.Marshal(result)
+		toPrint, err := json.MarshalIndent(result, "", "    ")
 		if err != nil {
 			log.Fatal(err)
 		}
