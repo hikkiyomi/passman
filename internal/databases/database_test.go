@@ -12,10 +12,11 @@ var (
 	kdf           = encryption.NewArgon2Kdf([]byte("salt"), 0, 0, 0, 0)
 	aesEncryptor  = encryption.NewAesEncryptor(kdf, "password")
 	noOpEncryptor = encryption.NoOpEncryptor{}
+	databasePath  = "test.db"
 )
 
 func TestEncryption(t *testing.T) {
-	databaseWithEncryption := databases.Open(".", aesEncryptor)
+	databaseWithEncryption := databases.Open(databasePath, aesEncryptor)
 	defer databaseWithEncryption.Drop()
 
 	record := databases.Record{
@@ -25,7 +26,7 @@ func TestEncryption(t *testing.T) {
 	}
 	databaseWithEncryption.Insert(record)
 
-	databaseWithNoEncryption := databases.Open(".", &noOpEncryptor)
+	databaseWithNoEncryption := databases.Open(databasePath, &noOpEncryptor)
 	foundRecord := databaseWithNoEncryption.FindByOwnerAndService("me", "some service")
 
 	if foundRecord.Owner != record.Owner ||
@@ -64,7 +65,7 @@ func TestInsert(t *testing.T) {
 		},
 	}
 
-	database := databases.Open(".", aesEncryptor)
+	database := databases.Open(databasePath, aesEncryptor)
 	defer database.Drop()
 
 	for _, record := range collectionToInsert {
@@ -89,7 +90,7 @@ func TestInsert(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	database := databases.Open(".", aesEncryptor)
+	database := databases.Open(databasePath, aesEncryptor)
 	defer database.Drop()
 
 	record := databases.Record{
@@ -108,7 +109,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	database := databases.Open(".", aesEncryptor)
+	database := databases.Open(databasePath, aesEncryptor)
 	defer database.Drop()
 
 	record := databases.Record{
