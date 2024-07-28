@@ -2,6 +2,7 @@ package exporters
 
 import (
 	"log"
+	"strings"
 
 	"github.com/hikkiyomi/passman/internal/exporters/mappers"
 )
@@ -9,12 +10,12 @@ import (
 func GetExporter(exporter, path, browser string) Exporter {
 	var result Exporter
 
-	switch exporter {
-	case "csv":
+	switch {
+	case exporter == "csv" || strings.HasSuffix(path, ".csv"):
 		result = NewCsvExporter(path, mappers.GetMapper(browser))
-	case "tsv":
+	case exporter == "tsv" || strings.HasSuffix(path, ".tsv"):
 		result = NewTsvExporter(path, mappers.GetMapper(browser))
-	case "json":
+	case exporter == "json" || strings.HasSuffix(path, ".json"):
 		result = NewJsonExporter(path)
 	default:
 		log.Fatal("Could not get exporter by given type.")

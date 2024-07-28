@@ -34,7 +34,7 @@ func init() {
 
 	exportCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
 	exportCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
-	exportCmd.Flags().StringVar(&exporterType, "export-type", "csv", "specifies the file type to export into.")
+	exportCmd.Flags().StringVar(&exporterType, "export-type", "", "specifies the file type to export into.")
 	exportCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
 
 	exportCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")

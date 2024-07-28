@@ -54,7 +54,7 @@ func init() {
 
 	importCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
 	importCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
-	importCmd.Flags().StringVar(&importerType, "import-type", "csv", "specifies the file type to import from.")
+	importCmd.Flags().StringVar(&importerType, "import-type", "", "specifies the file type to import from.")
 	importCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
 	importCmd.Flags().StringVar(&browser, "browser", "", "specifies the browser from which the data has come originally. Currently only Chrome and Firefox are supported.")
 
