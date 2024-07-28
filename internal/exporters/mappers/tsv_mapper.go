@@ -7,7 +7,9 @@ type defaultTsvMapper struct {
 }
 
 func NewDefaultTsvMapper() defaultTsvMapper {
-	return defaultTsvMapper{}
+	return defaultTsvMapper{
+		csvMapper: NewDefaultCsvMapper(),
+	}
 }
 
 func (m defaultTsvMapper) MapToRecord(inputData any) databases.Record {
