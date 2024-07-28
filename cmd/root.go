@@ -3,6 +3,8 @@ package cmd
 import (
 	"os"
 
+	"github.com/hikkiyomi/passman/internal/databases"
+	"github.com/hikkiyomi/passman/internal/encryption"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -15,7 +17,16 @@ var (
 	service         string
 	data            string
 	chosenEncryptor string
+	database        *databases.Database
 )
+
+func initDatabase(cmd *cobra.Command, args []string) {
+	viper.Set("user", user)
+
+	salt := getSalt(saltEnv)
+	encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
+	database = databases.Open(path, encryptor)
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "passman",

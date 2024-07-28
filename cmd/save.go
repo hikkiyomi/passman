@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/hikkiyomi/passman/internal/databases"
-	"github.com/hikkiyomi/passman/internal/encryption"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -19,15 +18,10 @@ func getSalt(saltEnv string) string {
 }
 
 var saveCmd = &cobra.Command{
-	Use:   "save",
-	Short: "Saves the data for some service.",
+	Use:    "save",
+	Short:  "Saves the data for some service.",
+	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Set("user", user)
-
-		salt := getSalt(saltEnv)
-		encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
-		database := databases.Open(path, encryptor)
-
 		record := databases.Record{
 			Owner:   user,
 			Service: service,

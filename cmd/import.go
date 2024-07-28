@@ -3,11 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/hikkiyomi/passman/internal/databases"
-	"github.com/hikkiyomi/passman/internal/encryption"
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -17,14 +14,10 @@ var (
 )
 
 var importCmd = &cobra.Command{
-	Use:   "import",
-	Short: "Imports data from given file.",
+	Use:    "import",
+	Short:  "Imports data from given file.",
+	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Set("user", user)
-
-		salt := getSalt(saltEnv)
-		encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
-		database := databases.Open(path, encryptor)
 		importer := exporters.GetExporter(importerType, importFrom, browser)
 		importingData := importer.Import()
 

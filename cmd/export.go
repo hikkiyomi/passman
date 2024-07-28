@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"github.com/hikkiyomi/passman/internal/databases"
-	"github.com/hikkiyomi/passman/internal/encryption"
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -14,14 +11,10 @@ var (
 )
 
 var exportCmd = &cobra.Command{
-	Use:   "export",
-	Short: "Exports data into given file.",
+	Use:    "export",
+	Short:  "Exports data into given file.",
+	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Set("user", user)
-
-		salt := getSalt(saltEnv)
-		encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
-		database := databases.Open(path, encryptor)
 		exporter := exporters.GetExporter(exporterType, exportInto, "")
 		exportingData := database.FindByOwner(user)
 
