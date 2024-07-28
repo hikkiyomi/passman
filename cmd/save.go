@@ -22,6 +22,8 @@ var saveCmd = &cobra.Command{
 	Use:   "save",
 	Short: "Saves the data for some service.",
 	Run: func(cmd *cobra.Command, args []string) {
+		viper.Set("user", user)
+
 		salt := getSalt(saltEnv)
 		encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
 		database := databases.Open(path, encryptor)

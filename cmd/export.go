@@ -5,6 +5,7 @@ import (
 	"github.com/hikkiyomi/passman/internal/encryption"
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -16,10 +17,12 @@ var exportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Exports data into given file.",
 	Run: func(cmd *cobra.Command, args []string) {
+		viper.Set("user", user)
+
 		salt := getSalt(saltEnv)
 		encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
 		database := databases.Open(path, encryptor)
-		exporter := exporters.GetExporterByType(exporterType, exportInto)
+		exporter := exporters.GetExporter(exporterType, exportInto, "")
 		exportingData := database.FindByOwner(user)
 
 		exporter.Export(exportingData)

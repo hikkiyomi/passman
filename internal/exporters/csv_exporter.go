@@ -7,17 +7,20 @@ import (
 	"os"
 
 	"github.com/hikkiyomi/passman/internal/databases"
+	"github.com/hikkiyomi/passman/internal/exporters/mappers"
 )
 
 type csvExporter struct {
-	comma rune
-	path  string
+	comma  rune
+	path   string
+	mapper mappers.Mapper
 }
 
-func NewCsvExporter(path string) csvExporter {
+func NewCsvExporter(path string, mapper mappers.Mapper) csvExporter {
 	return csvExporter{
-		comma: ',',
-		path:  path,
+		comma:  ',',
+		path:   path,
+		mapper: mapper,
 	}
 }
 
@@ -30,8 +33,9 @@ func (e csvExporter) Import() []databases.Record {
 
 	r := csv.NewReader(f)
 	r.Comma = e.comma
-	records := make([]databases.Record, 0)
-	haveReadColumns := false
+
+	result := make([]databases.Record, 0)
+	haveReadColumnNames := false
 
 	for {
 		data, err := r.Read()
@@ -44,19 +48,15 @@ func (e csvExporter) Import() []databases.Record {
 			log.Fatal(err)
 		}
 
-		if !haveReadColumns {
-			haveReadColumns = true
+		if !haveReadColumnNames {
+			haveReadColumnNames = true
 			continue
 		}
 
-		records = append(records, databases.Record{
-			Owner:   data[0],
-			Service: data[1],
-			Data:    []byte(data[2]),
-		})
+		result = append(result, e.mapper.MapToRecord(data))
 	}
 
-	return records
+	return result
 }
 
 func (e csvExporter) Export(records []databases.Record) {

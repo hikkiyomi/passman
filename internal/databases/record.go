@@ -51,3 +51,19 @@ func (r Record) MarshalJSON() ([]byte, error) {
 		Data:    string(r.Data),
 	})
 }
+
+func (r *Record) UnmarshalJSON(data []byte) error {
+	var input *struct {
+		Owner   string `json:"owner"`
+		Service string `json:"service"`
+		Data    string `json:"data"`
+	}
+
+	err := json.Unmarshal(data, &input)
+
+	r.Owner = input.Owner
+	r.Service = input.Service
+	r.Data = []byte(input.Data)
+
+	return err
+}

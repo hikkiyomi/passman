@@ -1,14 +1,17 @@
 package exporters
 
-import "github.com/hikkiyomi/passman/internal/databases"
+import (
+	"github.com/hikkiyomi/passman/internal/databases"
+	"github.com/hikkiyomi/passman/internal/exporters/mappers"
+)
 
-// TSV is just CSV with tab separator.
+// TSV is just CSV with a tab separator.
 type tsvExporter struct {
 	csvExporter csvExporter
 }
 
-func NewTsvExporter(path string) tsvExporter {
-	csvExporter := NewCsvExporter(path)
+func NewTsvExporter(path string, mapper mappers.Mapper) tsvExporter {
+	csvExporter := NewCsvExporter(path, mapper)
 	csvExporter.comma = '\t'
 
 	return tsvExporter{

@@ -8,9 +8,9 @@ import (
 )
 
 var (
+	user            string
 	saltEnv         string
 	path            string
-	user            string
 	masterPassword  string
 	service         string
 	data            string

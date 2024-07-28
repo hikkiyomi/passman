@@ -8,12 +8,15 @@ import (
 	"github.com/hikkiyomi/passman/internal/databases"
 	"github.com/hikkiyomi/passman/internal/encryption"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Fetches data from database.",
 	Run: func(cmd *cobra.Command, args []string) {
+		viper.Set("user", user)
+
 		salt := getSalt(saltEnv)
 		encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
 		database := databases.Open(path, encryptor)
