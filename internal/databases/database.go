@@ -52,7 +52,7 @@ func Open(path string, encryptor encryption.Encryptor) *Database {
 	return newDatabase(db, path, encryptor)
 }
 
-// Deletes the file where the whole database resides.
+// Deletes the file where the entire database resides.
 func (d *Database) Drop() {
 	err := os.Remove(d.path)
 	if err != nil {
