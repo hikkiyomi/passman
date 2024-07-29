@@ -8,6 +8,6 @@ func (encryptor *NoOpEncryptor) Encrypt(data []byte) []byte {
 	return data
 }
 
-func (encryptor *NoOpEncryptor) Decrypt(data []byte) []byte {
-	return data
+func (encryptor *NoOpEncryptor) Decrypt(data []byte) ([]byte, error) {
+	return data, nil
 }

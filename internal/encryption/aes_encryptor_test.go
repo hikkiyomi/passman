@@ -31,7 +31,7 @@ func TestEncrypt(t *testing.T) {
 func TestDecrypt(t *testing.T) {
 	for _, sensitiveData := range collectionOfSensitiveData {
 		encryptedData := encryptor.Encrypt(sensitiveData)
-		decryptedData := encryptor.Decrypt(encryptedData)
+		decryptedData, _ := encryptor.Decrypt(encryptedData)
 
 		if string(sensitiveData) != string(decryptedData) {
 			t.Fatalf("decrypted data `%s` is not equal to original data `%s`", decryptedData, sensitiveData)

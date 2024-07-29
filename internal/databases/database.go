@@ -101,14 +101,16 @@ func (d *Database) FindAll() []Record {
 			log.Fatalf("Error while scanning with FindAll: %v", err)
 		}
 
-		record = record.Decrypt(d.encryptor)
-		result = append(result, record)
+		record, err = record.Decrypt(d.encryptor)
+		if err == nil {
+			result = append(result, record)
+		}
 	}
 
 	return result
 }
 
-// Retrieves tuples from `storage` table by owner.
+// Retrieves records from `storage` table matching by owner.
 func (d *Database) FindByOwner(owner string) []Record {
 	rows, err := d.database.Query(
 		`
@@ -134,15 +136,17 @@ func (d *Database) FindByOwner(owner string) []Record {
 			log.Fatalf("FindByOwner scanning error: %v", err)
 		}
 
-		record = record.Decrypt(d.encryptor)
-		result = append(result, record)
+		record, err = record.Decrypt(d.encryptor)
+		if err == nil {
+			result = append(result, record)
+		}
 	}
 
 	return result
 }
 
 // Retrieves the only tuple from `storage` table matching by owner and service,
-// or nil if it does not exist.
+// or nil if such does not exist.
 func (d *Database) FindByOwnerAndService(owner, service string) *Record {
 	var result *Record
 	records := d.FindByOwner(owner)

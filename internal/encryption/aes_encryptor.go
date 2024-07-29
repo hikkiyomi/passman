@@ -39,7 +39,7 @@ func (encryptor aesEncryptor) Encrypt(sensitiveData []byte) []byte {
 	return cipherText
 }
 
-func (encryptor aesEncryptor) Decrypt(encryptedData []byte) []byte {
+func (encryptor aesEncryptor) Decrypt(encryptedData []byte) ([]byte, error) {
 	aes, err := aes.NewCipher(encryptor.secretKey)
 	if err != nil {
 		log.Fatalf("Error while creating new cipher for decrypt: %v", err)
@@ -54,9 +54,6 @@ func (encryptor aesEncryptor) Decrypt(encryptedData []byte) []byte {
 	nonce, cipherText := encryptedData[:nonceSize], encryptedData[nonceSize:]
 
 	decryptedData, err := gcm.Open(nil, nonce, cipherText, nil)
-	if err != nil {
-		log.Fatalf("Error while opening decrypted data: %v", err)
-	}
 
-	return decryptedData
+	return decryptedData, err
 }
