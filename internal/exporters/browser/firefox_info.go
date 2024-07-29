@@ -20,7 +20,7 @@ type FirefoxInfo struct {
 func (i FirefoxInfo) GetData() []byte {
 	data, err := json.Marshal(i)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while marshalling firefox info: %v", err)
 	}
 
 	return data

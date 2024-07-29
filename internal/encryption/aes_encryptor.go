@@ -21,17 +21,17 @@ func NewAesEncryptor(keygen KeyGenerator, password string) aesEncryptor {
 func (encryptor aesEncryptor) Encrypt(sensitiveData []byte) []byte {
 	aes, err := aes.NewCipher(encryptor.secretKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while creating new cipher for encrypt: %v", err)
 	}
 
 	gcm, err := cipher.NewGCM(aes)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while creating new GCM for encrypt: %v", err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while reading nonce: %v", err)
 	}
 
 	cipherText := gcm.Seal(nonce, nonce, sensitiveData, nil)
@@ -42,12 +42,12 @@ func (encryptor aesEncryptor) Encrypt(sensitiveData []byte) []byte {
 func (encryptor aesEncryptor) Decrypt(encryptedData []byte) []byte {
 	aes, err := aes.NewCipher(encryptor.secretKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while creating new cipher for decrypt: %v", err)
 	}
 
 	gcm, err := cipher.NewGCM(aes)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while creating new GCM for decrypt: %v", err)
 	}
 
 	nonceSize := gcm.NonceSize()
@@ -55,7 +55,7 @@ func (encryptor aesEncryptor) Decrypt(encryptedData []byte) []byte {
 
 	decryptedData, err := gcm.Open(nil, nonce, cipherText, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while opening decrypted data: %v", err)
 	}
 
 	return decryptedData

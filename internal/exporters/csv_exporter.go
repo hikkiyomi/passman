@@ -27,7 +27,7 @@ func NewCsvExporter(path string, mapper mappers.Mapper) csvExporter {
 func (e csvExporter) Import() []databases.Record {
 	f, err := os.Open(e.path)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while opening file for importing csv: %v", err)
 	}
 	defer f.Close()
 
@@ -45,7 +45,7 @@ func (e csvExporter) Import() []databases.Record {
 		}
 
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error while reading csv: %v", err)
 		}
 
 		if !haveReadColumnNames {
@@ -70,7 +70,7 @@ func (e csvExporter) Export(records []databases.Record) {
 
 	f, err := os.Create(e.path)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while creating file for exporting csv: %v", err)
 	}
 	defer f.Close()
 
@@ -80,7 +80,7 @@ func (e csvExporter) Export(records []databases.Record) {
 
 	for _, line := range data {
 		if err := w.Write(line); err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error while writing to csv file: %v", err)
 		}
 	}
 }

@@ -28,7 +28,7 @@ func (r Record) Encrypt(encryptor encryption.Encryptor) Record {
 func (r Record) Decrypt(encryptor encryption.Encryptor) Record {
 	decodedData, err := base64.StdEncoding.DecodeString(string(r.Data))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Couldn't decode base64 data.")
 	}
 
 	resultingData := encryptor.Decrypt(decodedData)

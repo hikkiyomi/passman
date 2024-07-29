@@ -29,7 +29,7 @@ func newDatabase(database *sql.DB, path string, encryptor encryption.Encryptor) 
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("CREATE TABLE: %v", err)
 	}
 
 	return &Database{
@@ -46,7 +46,7 @@ func Open(path string, encryptor encryption.Encryptor) *Database {
 	db, err := sql.Open("sqlite3", path)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Open error: %v", err)
 	}
 
 	return newDatabase(db, path, encryptor)
@@ -56,7 +56,7 @@ func Open(path string, encryptor encryption.Encryptor) *Database {
 func (d *Database) Drop() {
 	err := os.Remove(d.path)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Drop error: %v", err)
 	}
 }
 
@@ -75,7 +75,7 @@ func (d *Database) Insert(record Record) {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Insert error: %v", err)
 	}
 }
 
@@ -89,7 +89,7 @@ func (d *Database) FindAll() []Record {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("FindAll error while selecting: %v", err)
 	}
 
 	result := make([]Record, 0)
@@ -98,7 +98,7 @@ func (d *Database) FindAll() []Record {
 		var record Record
 
 		if err := rows.Scan(&record.Owner, &record.Service, &record.Data); err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error while scanning with FindAll: %v", err)
 		}
 
 		record = record.Decrypt(d.encryptor)
@@ -122,7 +122,7 @@ func (d *Database) FindByOwner(owner string) []Record {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("FindByOwner error while selecting: %v", err)
 	}
 
 	result := make([]Record, 0)
@@ -131,7 +131,7 @@ func (d *Database) FindByOwner(owner string) []Record {
 		record := Record{Owner: owner}
 
 		if err := rows.Scan(&record.Service, &record.Data); err != nil {
-			log.Fatal(err)
+			log.Fatalf("FindByOwner scanning error: %v", err)
 		}
 
 		record = record.Decrypt(d.encryptor)
@@ -186,7 +186,7 @@ func (d *Database) Update(record Record) {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Update error: %v", err)
 	}
 }
 
@@ -207,7 +207,7 @@ func (d *Database) DeleteByOwnerAndService(owner, service string) {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Delete error: %v", err)
 	}
 }
 

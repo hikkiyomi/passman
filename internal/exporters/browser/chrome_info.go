@@ -16,7 +16,7 @@ type ChromeInfo struct {
 func (i ChromeInfo) GetData() []byte {
 	data, err := json.Marshal(i)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error while marshalling chrome info: %v", err)
 	}
 
 	return data
