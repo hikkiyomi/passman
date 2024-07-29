@@ -31,7 +31,7 @@ func (m chromeMapper) MapToRecord(inputData any) databases.Record {
 
 	return databases.Record{
 		Owner:   viper.Get("user").(string),
-		Service: info.Url,
+		Service: info.Name,
 		Data:    info.GetData(),
 	}
 }
