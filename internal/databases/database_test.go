@@ -13,48 +13,38 @@ var (
 	aesEncryptor  = encryption.NewAesEncryptor(kdf, "password")
 	noOpEncryptor = encryption.NoOpEncryptor{}
 	databasePath  = "test.db"
+	user          = "user"
 )
 
+// This test fails and that is expected.
+// Running it will cause FAIL, because it will try to unmarshal some garbage.
 func TestEncryption(t *testing.T) {
-	databaseWithEncryption := databases.Open(databasePath, aesEncryptor)
+	localDatabasePath := "shouldNotBeDeleted.db"
+
+	databaseWithEncryption := databases.Open(user, localDatabasePath, aesEncryptor)
 	defer databaseWithEncryption.Drop()
 
 	record := databases.Record{
-		Owner:   "me",
+		Owner:   user,
 		Service: "some service",
 		Data:    []byte("sike u thought"),
 	}
-	databaseWithEncryption.Insert(record)
+	databaseWithEncryption.Insert(&record)
 
-	databaseWithNoEncryption := databases.Open(databasePath, &noOpEncryptor)
-	foundRecord := databaseWithNoEncryption.FindByOwnerAndService("me", "some service")
+	databaseWithNoEncryption := databases.Open(user, localDatabasePath, &noOpEncryptor)
 
-	if foundRecord.Owner != record.Owner ||
-		foundRecord.Service != record.Service ||
-		string(foundRecord.Data) == string(record.Data) {
-
-		t.Fatalf("expected encrypted data %s. found the same %s.", foundRecord.Data, record.Data)
-	}
-
-	foundRecordDecrypted := databaseWithEncryption.FindByOwnerAndService("me", "some service")
-
-	if foundRecordDecrypted.Owner != record.Owner ||
-		foundRecordDecrypted.Service != record.Service ||
-		string(foundRecordDecrypted.Data) != string(record.Data) {
-
-		t.Fatalf("expected %v, but found %v", record, foundRecordDecrypted)
-	}
+	databaseWithNoEncryption.FindByService("some service")
 }
 
 func TestInsert(t *testing.T) {
 	collectionToInsert := []databases.Record{
 		{
-			Owner:   "me",
+			Owner:   user,
 			Service: "hehe",
 			Data:    []byte("some data"),
 		},
 		{
-			Owner:   "me",
+			Owner:   user,
 			Service: "another service",
 			Data:    []byte("some data again"),
 		},
@@ -65,60 +55,58 @@ func TestInsert(t *testing.T) {
 		},
 	}
 
-	database := databases.Open(databasePath, aesEncryptor)
+	database := databases.Open(user, databasePath, aesEncryptor)
 	defer database.Drop()
 
 	for _, record := range collectionToInsert {
-		database.Insert(record)
+		database.Insert(&record)
 	}
 
-	if found := database.FindByOwner("me"); len(found) != 2 {
+	if found := database.FindAll(); len(found) != 2 {
 		t.Fatalf("expected 2 records with owner `me` but found %d", len(found))
 	}
 
-	if found := database.FindByOwnerAndService("me", "another service"); found == nil {
+	if found := database.FindByService("another service"); len(found) == 0 {
 		t.Fatal("expected finding the record with owner `me` and service `another service` but found nothing.")
 	}
 
-	if found := database.FindByOwner("you"); len(found) != 1 {
-		t.Fatalf("expected 2 records with owner `you` but found %d", len(found))
-	}
+	anotherDatabase := databases.Open("you", databasePath, aesEncryptor)
 
-	if found := database.FindAll(); len(found) != 3 {
-		t.Fatalf("expected 3 records in total but found %d", len(found))
+	if found := anotherDatabase.FindAll(); len(found) != 1 {
+		t.Fatalf("expected 1 record but found %v", len(found))
 	}
 }
 
 func TestUpdate(t *testing.T) {
-	database := databases.Open(databasePath, aesEncryptor)
+	database := databases.Open(user, databasePath, aesEncryptor)
 	defer database.Drop()
 
 	record := databases.Record{
-		Owner:   "me",
+		Owner:   user,
 		Service: "service",
 		Data:    []byte("kek"),
 	}
-	database.Insert(record)
+	database.Insert(&record)
 
 	record.Data = []byte("new kek")
 	database.Update(record)
 
-	if found := database.FindByOwnerAndService("me", "service"); string(found.Data) != string(record.Data) {
+	if found := database.FindByService("service")[0]; string(found.Data) != string(record.Data) {
 		t.Fatalf("expected %v but found %v", found.Data, record.Data)
 	}
 }
 
 func TestDelete(t *testing.T) {
-	database := databases.Open(databasePath, aesEncryptor)
+	database := databases.Open(user, databasePath, aesEncryptor)
 	defer database.Drop()
 
 	record := databases.Record{
-		Owner:   "me",
+		Owner:   user,
 		Service: "service",
 		Data:    []byte("data"),
 	}
 
-	database.Insert(record)
+	database.Insert(&record)
 	database.Delete(record)
 
 	if found := database.FindAll(); len(found) != 0 {

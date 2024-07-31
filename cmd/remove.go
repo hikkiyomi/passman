@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 )
 
@@ -9,7 +11,16 @@ var removeCmd = &cobra.Command{
 	Short:  "Removes the data for some service.",
 	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		database.DeleteByOwnerAndService(user, service)
+		id, err := cmd.Flags().GetInt64("id")
+		if err != nil {
+			log.Fatalf("Couldn't get id flag: %v", err)
+		}
+
+		record := database.FindById(id)
+
+		if record != nil {
+			database.Delete(*record)
+		}
 	},
 }
 
@@ -26,6 +37,6 @@ func init() {
 	removeCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
 	removeCmd.MarkFlagRequired("password")
 
-	removeCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
-	removeCmd.MarkFlagRequired("service")
+	removeCmd.Flags().Int64("id", 0, "specifies the id of record to be deleted.")
+	removeCmd.MarkFlagRequired("id")
 }

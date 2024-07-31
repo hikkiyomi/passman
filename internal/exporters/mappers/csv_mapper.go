@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/hikkiyomi/passman/internal/databases"
+	"github.com/spf13/viper"
 )
 
 type defaultCsvMapper struct {
@@ -20,7 +21,7 @@ func (m defaultCsvMapper) MapToRecord(inputData any) databases.Record {
 	}
 
 	return databases.Record{
-		Owner:   data[0],
+		Owner:   viper.Get("user").(string),
 		Service: data[1],
 		Data:    []byte(data[2]),
 	}

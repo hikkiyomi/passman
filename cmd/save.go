@@ -28,7 +28,7 @@ var saveCmd = &cobra.Command{
 			Data:    []byte(data),
 		}
 
-		database.Insert(record)
+		database.Insert(&record)
 	},
 }
 

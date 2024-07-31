@@ -17,12 +17,12 @@ var getCmd = &cobra.Command{
 		result := make([]databases.Record, 0)
 
 		if service != "" {
-			foundRecord := database.FindByOwnerAndService(user, service)
-			if foundRecord != nil {
-				result = append(result, *foundRecord)
+			foundRecords := database.FindByService(service)
+			if foundRecords != nil {
+				result = append(result, foundRecords...)
 			}
 		} else {
-			result = append(result, database.FindByOwner(user)...)
+			result = append(result, database.FindAll()...)
 		}
 
 		toPrint, err := json.MarshalIndent(result, "", "    ")

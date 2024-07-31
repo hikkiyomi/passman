@@ -16,7 +16,7 @@ var exportCmd = &cobra.Command{
 	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
 		exporter := exporters.GetExporter(exporterType, exportInto, "")
-		exportingData := database.FindByOwner(user)
+		exportingData := database.FindAll()
 
 		exporter.Export(exportingData)
 	},

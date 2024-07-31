@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
 )
@@ -21,23 +19,8 @@ var importCmd = &cobra.Command{
 		importer := exporters.GetExporter(importerType, importFrom, browser)
 		importingData := importer.Import()
 
-		countService := map[string]int{}
-
-		// In case if importing data contains more than 1 record for one service.
-		renameService := func(service string) string {
-			count := countService[service]
-
-			if count >= 2 {
-				service = fmt.Sprintf("%s (%d)", service, count-1)
-			}
-
-			return service
-		}
-
 		for _, record := range importingData {
-			countService[record.Service]++
-			record.Service = renameService(record.Service)
-			database.Insert(record)
+			database.Insert(&record)
 		}
 	},
 }

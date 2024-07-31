@@ -25,7 +25,7 @@ func initDatabase(cmd *cobra.Command, args []string) {
 
 	salt := getSalt(saltEnv)
 	encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
-	database = databases.Open(path, encryptor)
+	database = databases.Open(user, path, encryptor)
 }
 
 var rootCmd = &cobra.Command{

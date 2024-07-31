@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/hikkiyomi/passman/internal/databases"
+	"log"
+
 	"github.com/spf13/cobra"
 )
 
@@ -10,13 +11,17 @@ var updateCmd = &cobra.Command{
 	Short:  "Updates the data for some service.",
 	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		record := databases.Record{
-			Owner:   user,
-			Service: service,
-			Data:    []byte(data),
+		id, err := cmd.Flags().GetInt64("id")
+		if err != nil {
+			log.Fatalf("Couldn't get id flag: %v", err)
 		}
 
-		database.Update(record)
+		record := database.FindById(id)
+
+		if record != nil {
+			record.Data = []byte(data)
+			database.Update(*record)
+		}
 	},
 }
 
@@ -33,8 +38,8 @@ func init() {
 	updateCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
 	updateCmd.MarkFlagRequired("password")
 
-	updateCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
-	updateCmd.MarkFlagRequired("service")
+	updateCmd.Flags().Int64("id", 0, "specifies the id of record to be deleted.")
+	updateCmd.MarkFlagRequired("id")
 
 	updateCmd.Flags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
 	updateCmd.MarkFlagRequired("data")
