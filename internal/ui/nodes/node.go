@@ -13,7 +13,7 @@ type Node interface {
 	View() string
 
 	GetNext() Node
-	Handle() (Node, tea.Cmd)
+	Handle(*Node) tea.Cmd
 }
 
 type Sizes struct {
@@ -43,23 +43,9 @@ func (n BaseNode) GetNext() Node {
 	return n.next
 }
 
-// A handle function for non-base nodes.
-func handleNode(baseNode *BaseNode) tea.Cmd {
-	node, cmd := baseNode.Handle()
-
-	tempNode, ok := node.(BaseNode)
-	if !ok {
-		log.Fatal("Couldn't convert tempNode into baseNode while handling.")
-	}
-
-	*baseNode = tempNode
-
+func (n *BaseNode) Handle(node *Node) tea.Cmd {
+	cmd := n.fields[n.cursor].Handle(node)
 	return cmd
-}
-
-func (n BaseNode) Handle() (Node, tea.Cmd) {
-	cmd := n.fields[n.cursor].Handle(&n)
-	return n, cmd
 }
 
 func (n BaseNode) Init() tea.Cmd {
@@ -110,17 +96,17 @@ func (n *BaseNode) moveCursor(step int) tea.Cmd {
 func updateNode(baseNode *BaseNode, msg tea.Msg) tea.Cmd {
 	node, cmd := baseNode.Update(msg)
 
-	tempNode, ok := node.(BaseNode)
+	tempNode, ok := node.(*BaseNode)
 	if !ok {
 		log.Fatal("Couldn't convert tempNode to baseNode while updating non-base node.")
 	}
 
-	*baseNode = tempNode
+	*baseNode = *tempNode
 
 	return cmd
 }
 
-func (n BaseNode) Update(msg tea.Msg) (Node, tea.Cmd) {
+func (n *BaseNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {

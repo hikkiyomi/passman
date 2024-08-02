@@ -69,7 +69,7 @@ func (b Block) View() string {
 	return b.style.Render(toRender)
 }
 
-func (b *Block) Handle(node *BaseNode) tea.Cmd {
+func (b *Block) Handle(node *Node) tea.Cmd {
 	cmds := make([]tea.Cmd, 0, len(b.fields))
 
 	for _, field := range b.fields {

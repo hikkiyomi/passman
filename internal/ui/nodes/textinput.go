@@ -34,7 +34,7 @@ func (t TextInput) View() string {
 	return textInputStyle.Render(t.textinput.View())
 }
 
-func (t *TextInput) Handle(node *BaseNode) tea.Cmd {
+func (t *TextInput) Handle(node *Node) tea.Cmd {
 	return nil
 }
 

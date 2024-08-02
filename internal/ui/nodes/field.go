@@ -11,5 +11,5 @@ type Field interface {
 
 	Blur()
 	Focus() tea.Cmd
-	Handle(*BaseNode) tea.Cmd
+	Handle(*Node) tea.Cmd
 }
