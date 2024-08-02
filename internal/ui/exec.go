@@ -11,7 +11,7 @@ type model struct {
 
 func NewModel() model {
 	return model{
-		node: nodes.NewWelcomeNode(),
+		node: nodes.NewWelcomeNode(0, 0),
 	}
 }
 
@@ -20,7 +20,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var msgCmd tea.Cmd = nil
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -28,17 +28,32 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "enter":
-			msgCmd = m.node.HandleChoice()
+			var msgCmd tea.Cmd
+
+			m.node, msgCmd = m.node.Handle()
 			m.node = m.node.GetNext()
+			cmds = append(cmds, msgCmd)
+
+			if m.node != nil {
+				cmds = append(cmds, m.node.Init())
+			}
 		}
 	}
 
 	var cmd tea.Cmd
-	m.node, cmd = m.node.Update(msg)
 
-	return m, tea.Batch(msgCmd, cmd)
+	if m.node != nil {
+		m.node, cmd = m.node.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() string {
+	if m.node == nil {
+		return ""
+	}
+
 	return m.node.View()
 }

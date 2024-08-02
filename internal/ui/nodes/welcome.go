@@ -1,8 +1,6 @@
 package nodes
 
 import (
-	"log"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -11,38 +9,33 @@ type WelcomeNode struct {
 	BaseNode
 }
 
-func NewWelcomeNode() WelcomeNode {
-	choices := []Choice{
-		{
-			name: "Login",
-			handler: func() tea.Cmd {
-				return nil
-			},
-		},
-		{
-			name: "Exit",
-			handler: func() tea.Cmd {
-				return tea.Quit
-			},
-		},
+func NewWelcomeNode(width, height int) WelcomeNode {
+	fields := []Field{
+		newChoice("Login", func(node *BaseNode) tea.Cmd {
+			node.next = NewLoginNode(node.sizes.width, node.sizes.height)
+			return nil
+		}),
+		newChoice("Exit", func(node *BaseNode) tea.Cmd {
+			return tea.Quit
+		}),
 	}
 
 	return WelcomeNode{
-		BaseNode: newBaseNode(choices),
+		BaseNode: newBaseNode(width, height, fields...),
 	}
 }
 
+func (n WelcomeNode) Init() tea.Cmd {
+	return n.fields[0].Focus()
+}
+
+func (n WelcomeNode) Handle() (Node, tea.Cmd) {
+	cmd := handleNode(&n.BaseNode)
+	return n, cmd
+}
+
 func (n WelcomeNode) Update(msg tea.Msg) (Node, tea.Cmd) {
-	var cmd tea.Cmd
-	node, cmd := n.BaseNode.Update(msg)
-
-	tempNode, ok := node.(BaseNode)
-	if !ok {
-		log.Fatalf("Couldn't convert node to BaseNode")
-	}
-
-	n.BaseNode = tempNode
-
+	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd
 }
 

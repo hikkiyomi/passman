@@ -1,7 +1,7 @@
 package nodes
 
 import (
-	"fmt"
+	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -13,8 +13,7 @@ type Node interface {
 	View() string
 
 	GetNext() Node
-	GetChoice() string
-	HandleChoice() tea.Cmd
+	Handle() (Node, tea.Cmd)
 }
 
 type Sizes struct {
@@ -23,16 +22,20 @@ type Sizes struct {
 }
 
 type BaseNode struct {
-	cursor  int
-	choices []Choice
-	next    Node
-	sizes   Sizes
+	cursor int
+	fields []Field
+	next   Node
+	sizes  Sizes
 }
 
-func newBaseNode(choices []Choice) BaseNode {
+func newBaseNode(width, height int, choices ...Field) BaseNode {
 	return BaseNode{
-		cursor:  0,
-		choices: choices,
+		cursor: 0,
+		fields: choices,
+		sizes: Sizes{
+			width:  width,
+			height: height,
+		},
 	}
 }
 
@@ -40,24 +43,86 @@ func (n BaseNode) GetNext() Node {
 	return n.next
 }
 
-func (n BaseNode) GetChoice() string {
-	return n.choices[n.cursor].name
+// A handle function for non-base nodes.
+func handleNode(baseNode *BaseNode) tea.Cmd {
+	node, cmd := baseNode.Handle()
+
+	tempNode, ok := node.(BaseNode)
+	if !ok {
+		log.Fatal("Couldn't convert tempNode into baseNode while handling.")
+	}
+
+	*baseNode = tempNode
+
+	return cmd
 }
 
-func (n BaseNode) HandleChoice() tea.Cmd {
-	return n.choices[n.cursor].Handle()
+func (n BaseNode) Handle() (Node, tea.Cmd) {
+	cmd := n.fields[n.cursor].Handle(&n)
+	return n, cmd
 }
 
 func (n BaseNode) Init() tea.Cmd {
 	return nil
 }
 
-func (n *BaseNode) moveCursor(step int) {
-	mod := len(n.choices)
+func (n *BaseNode) moveCursor(step int) tea.Cmd {
+	mod := len(n.fields)
+
+	switch field := n.fields[n.cursor].(type) {
+	case *Block:
+		ok, cmd := field.moveCursor(step)
+
+		if !ok {
+			break
+		}
+
+		n.fields[n.cursor] = field
+
+		return cmd
+	}
+
+	n.fields[n.cursor].Blur()
 	n.cursor = ((n.cursor+step)%mod + mod) % mod
+
+	switch field := n.fields[n.cursor].(type) {
+	case *Block:
+		var cmd tea.Cmd
+
+		if step > 0 {
+			field.cursor = 0
+			cmd = field.fields[0].Focus()
+		} else {
+			field.cursor = len(field.fields) - 1
+			cmd = field.fields[len(field.fields)-1].Focus()
+		}
+
+		n.fields[n.cursor] = field
+
+		return cmd
+	}
+
+	return n.fields[n.cursor].Focus()
+}
+
+// An update function for non-base nodes.
+// It delegates the update for base node.
+func updateNode(baseNode *BaseNode, msg tea.Msg) tea.Cmd {
+	node, cmd := baseNode.Update(msg)
+
+	tempNode, ok := node.(BaseNode)
+	if !ok {
+		log.Fatal("Couldn't convert tempNode to baseNode while updating non-base node.")
+	}
+
+	*baseNode = tempNode
+
+	return cmd
 }
 
 func (n BaseNode) Update(msg tea.Msg) (Node, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		n.sizes.width = msg.Width
@@ -65,31 +130,27 @@ func (n BaseNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up":
-			n.moveCursor(-1)
-		case "down":
-			n.moveCursor(1)
+			cmd = n.moveCursor(-1)
+		case "down", "tab":
+			cmd = n.moveCursor(1)
+		default:
+			n.fields[n.cursor], cmd = n.fields[n.cursor].Update(msg)
 		}
 	}
 
-	return n, nil
+	return n, cmd
 }
 
-func (n BaseNode) renderChoices() string {
+func (n BaseNode) render() string {
 	result := make([]string, 0)
 
-	for i, choice := range n.choices {
-		prefix := "   "
-
-		if i == n.cursor {
-			prefix = "-> "
-		}
-
-		result = append(result, fmt.Sprintf("%v%v", prefix, choice.name))
+	for _, field := range n.fields {
+		result = append(result, field.View())
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, result...)
 }
 
 func (n BaseNode) View() string {
-	return n.renderChoices()
+	return n.render()
 }
