@@ -13,9 +13,9 @@ type LoginNode struct {
 func NewLoginNode(width, height int) *LoginNode {
 	fields := []Field{
 		newBlock(
-			defaultBlockStyle,
-			newTextInputField(defaultTextInputStyle, "   Login: ", textinput.EchoNormal),
-			newTextInputField(defaultTextInputStyle, "Password: ", textinput.EchoPassword),
+			defaultBlockStyle.Border(lipgloss.RoundedBorder()).PaddingLeft(1).PaddingRight(1),
+			newTextInputField(defaultTextInputStyle.MaxWidth(40), "   Login: ", textinput.EchoNormal),
+			newTextInputField(defaultTextInputStyle.MaxWidth(40), "Password: ", textinput.EchoPassword),
 		),
 		newChoice(defaultUnfocusedStyle, defaultFocusedStyle, "ENTER", func(model *model) (bool, tea.Cmd) {
 			// TODO: GO TO SALT NODE
@@ -45,8 +45,6 @@ func (n LoginNode) View() string {
 		lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Top,
-			"LOGIN PAGE",
-			"",
 			n.BaseNode.View(),
 		),
 	)
