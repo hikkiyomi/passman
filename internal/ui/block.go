@@ -69,14 +69,8 @@ func (b Block) View() string {
 	return b.style.Render(toRender)
 }
 
-func (b *Block) Handle(node *model) tea.Cmd {
-	cmds := make([]tea.Cmd, 0, len(b.fields))
-
-	for _, field := range b.fields {
-		cmds = append(cmds, field.Handle(node))
-	}
-
-	return tea.Batch(cmds...)
+func (b *Block) Handle(model *model) (bool, tea.Cmd) {
+	return b.fields[b.cursor].Handle(model)
 }
 
 func (b *Block) Blur() {

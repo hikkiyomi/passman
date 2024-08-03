@@ -6,11 +6,11 @@ import (
 
 type Choice struct {
 	name      string
-	handler   func(*model) tea.Cmd
+	handler   func(*model) (bool, tea.Cmd)
 	isFocused bool
 }
 
-func newChoice(name string, handler func(*model) tea.Cmd) *Choice {
+func newChoice(name string, handler func(*model) (bool, tea.Cmd)) *Choice {
 	return &Choice{
 		name:    name,
 		handler: handler,
@@ -33,8 +33,8 @@ func (c Choice) View() string {
 	return itemStyle.Render(c.name)
 }
 
-func (c Choice) Handle(node *model) tea.Cmd {
-	return c.handler(node)
+func (c Choice) Handle(model *model) (bool, tea.Cmd) {
+	return c.handler(model)
 }
 
 func (c *Choice) Blur() {

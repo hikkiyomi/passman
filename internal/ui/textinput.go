@@ -34,8 +34,8 @@ func (t TextInput) View() string {
 	return textInputStyle.Render(t.textinput.View())
 }
 
-func (t *TextInput) Handle(node *model) tea.Cmd {
-	return nil
+func (t *TextInput) Handle(model *model) (bool, tea.Cmd) {
+	return false, nil
 }
 
 func (t *TextInput) Blur() {

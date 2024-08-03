@@ -13,7 +13,7 @@ type Node interface {
 	View() string
 
 	GetNext() Node
-	Handle(*model) tea.Cmd
+	Handle(*model) (bool, tea.Cmd)
 }
 
 type Sizes struct {
@@ -43,9 +43,8 @@ func (n BaseNode) GetNext() Node {
 	return n.next
 }
 
-func (n *BaseNode) Handle(node *model) tea.Cmd {
-	cmd := n.fields[n.cursor].Handle(node)
-	return cmd
+func (n *BaseNode) Handle(model *model) (bool, tea.Cmd) {
+	return n.fields[n.cursor].Handle(model)
 }
 
 func (n BaseNode) Init() tea.Cmd {

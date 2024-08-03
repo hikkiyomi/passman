@@ -11,13 +11,13 @@ type WelcomeNode struct {
 
 func NewWelcomeNode(width, height int) *WelcomeNode {
 	fields := []Field{
-		newChoice("Login", func(model *model) tea.Cmd {
+		newChoice("Login", func(model *model) (bool, tea.Cmd) {
 			currentNode := model.node.(*WelcomeNode)
 			model.node = NewLoginNode(currentNode.sizes.width, currentNode.sizes.height)
-			return nil
+			return true, nil
 		}),
-		newChoice("Exit", func(model *model) tea.Cmd {
-			return tea.Quit
+		newChoice("Exit", func(model *model) (bool, tea.Cmd) {
+			return false, tea.Quit
 		}),
 	}
 
