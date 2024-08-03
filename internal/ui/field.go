@@ -11,5 +11,5 @@ type Field interface {
 
 	Blur()
 	Focus() tea.Cmd
-	Handle(*Node) tea.Cmd
+	Handle(*model) tea.Cmd
 }

@@ -29,7 +29,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			var msgCmd tea.Cmd
 
-			msgCmd = m.node.Handle(&m.node)
+			msgCmd = m.node.Handle(&m)
 			cmds = append(cmds, msgCmd)
 
 			if m.node != nil {

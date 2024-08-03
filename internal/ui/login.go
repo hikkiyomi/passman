@@ -17,7 +17,7 @@ func NewLoginNode(width, height int) *LoginNode {
 			newTextInputField("   Login: ", textinput.EchoNormal),
 			newTextInputField("Password: ", textinput.EchoPassword),
 		),
-		newChoice("ENTER", func(node *Node) tea.Cmd {
+		newChoice("ENTER", func(model *model) tea.Cmd {
 			// TODO: GO TO SALT NODE
 			return nil
 		}),
