@@ -2,16 +2,15 @@ package ui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hikkiyomi/passman/internal/ui/nodes"
 )
 
 type model struct {
-	node nodes.Node
+	node Node
 }
 
 func NewModel() model {
 	return model{
-		node: nodes.NewWelcomeNode(0, 0),
+		node: NewWelcomeNode(0, 0),
 	}
 }
 
