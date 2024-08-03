@@ -6,9 +6,11 @@ import (
 )
 
 type Choice struct {
-	name      string
-	handler   func(*model) (bool, tea.Cmd)
-	isFocused bool
+	name           string
+	handler        func(*model) (bool, tea.Cmd)
+	isFocused      bool
+	unfocusedStyle lipgloss.Style
+	focusedStyle   lipgloss.Style
 }
 
 func newChoice(
@@ -18,8 +20,10 @@ func newChoice(
 	handler func(*model) (bool, tea.Cmd),
 ) *Choice {
 	return &Choice{
-		name:    name,
-		handler: handler,
+		name:           name,
+		handler:        handler,
+		unfocusedStyle: unfocusedStyle,
+		focusedStyle:   focusedStyle,
 	}
 }
 
@@ -33,10 +37,10 @@ func (c *Choice) Update(msg tea.Msg) (Field, tea.Cmd) {
 
 func (c Choice) View() string {
 	if c.isFocused {
-		return defaultFocusedStyle.Render("> " + c.name)
+		return c.focusedStyle.Render("> " + c.name)
 	}
 
-	return defaultUnfocusedStyle.Render(c.name)
+	return c.unfocusedStyle.Render(c.name)
 }
 
 func (c Choice) Handle(model *model) (bool, tea.Cmd) {
