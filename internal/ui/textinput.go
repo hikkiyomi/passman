@@ -3,13 +3,15 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type TextInput struct {
 	textinput textinput.Model
+	style     lipgloss.Style
 }
 
-func newTextInputField(prompt string, echoMode textinput.EchoMode) *TextInput {
+func newTextInputField(style lipgloss.Style, prompt string, echoMode textinput.EchoMode) *TextInput {
 	ti := textinput.New()
 
 	ti.Prompt = prompt
@@ -17,6 +19,7 @@ func newTextInputField(prompt string, echoMode textinput.EchoMode) *TextInput {
 
 	return &TextInput{
 		textinput: ti,
+		style:     style,
 	}
 }
 
@@ -31,7 +34,7 @@ func (t *TextInput) Update(msg tea.Msg) (Field, tea.Cmd) {
 }
 
 func (t TextInput) View() string {
-	return textInputStyle.Render(t.textinput.View())
+	return t.style.Render(t.textinput.View())
 }
 
 func (t *TextInput) Handle(model *model) (bool, tea.Cmd) {

@@ -13,11 +13,11 @@ type LoginNode struct {
 func NewLoginNode(width, height int) *LoginNode {
 	fields := []Field{
 		newBlock(
-			lipgloss.NewStyle().Margin(1),
-			newTextInputField("   Login: ", textinput.EchoNormal),
-			newTextInputField("Password: ", textinput.EchoPassword),
+			defaultBlockStyle,
+			newTextInputField(defaultTextInputStyle, "   Login: ", textinput.EchoNormal),
+			newTextInputField(defaultTextInputStyle, "Password: ", textinput.EchoPassword),
 		),
-		newChoice("ENTER", func(model *model) (bool, tea.Cmd) {
+		newChoice(defaultUnfocusedStyle, defaultFocusedStyle, "ENTER", func(model *model) (bool, tea.Cmd) {
 			// TODO: GO TO SALT NODE
 			return false, nil
 		}),
