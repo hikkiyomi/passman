@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"log"
 	"os"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/hikkiyomi/passman/internal/databases"
 	"github.com/hikkiyomi/passman/internal/encryption"
+	"github.com/hikkiyomi/passman/internal/ui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -31,6 +34,19 @@ func initDatabase(cmd *cobra.Command, args []string) {
 var rootCmd = &cobra.Command{
 	Use:   "passman",
 	Short: "passman is a CLI application for managing your passwords. Use `passman --help` for more information.",
+	Run: func(cmd *cobra.Command, args []string) {
+		f, err := tea.LogToFile("debug.log", "DEBUG")
+		if err != nil {
+			log.Fatalf("Couldn't handle logging to file: %v", err)
+		}
+		defer f.Close()
+
+		p := tea.NewProgram(ui.NewModel(), tea.WithAltScreen())
+
+		if _, err := p.Run(); err != nil {
+			log.Fatalf("Something went wrong while running tea.Program: %v", err)
+		}
+	},
 }
 
 func Execute() {
