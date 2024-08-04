@@ -11,14 +11,24 @@ type WelcomeNode struct {
 
 func NewWelcomeNode(width, height int) *WelcomeNode {
 	fields := []Field{
-		newChoice(defaultUnfocusedStyle, defaultFocusedStyle, "Login", func(model *model) (bool, tea.Cmd) {
-			currentNode := model.node.(*WelcomeNode)
-			model.node = NewLoginNode(currentNode.sizes.width, currentNode.sizes.height)
-			return true, nil
-		}),
-		newChoice(defaultUnfocusedStyle, defaultFocusedStyle, "Exit", func(model *model) (bool, tea.Cmd) {
-			return false, tea.Quit
-		}),
+		newChoice(
+			defaultUnfocusedStyle,
+			defaultFocusedStyle,
+			"Login",
+			func(model *model) (bool, tea.Cmd) {
+				currentNode := model.node.(*WelcomeNode)
+				model.node = NewLoginNode(currentNode.sizes.width, currentNode.sizes.height)
+				return true, nil
+			},
+		),
+		newChoice(
+			defaultUnfocusedStyle,
+			defaultFocusedStyle,
+			"Exit",
+			func(model *model) (bool, tea.Cmd) {
+				return false, tea.Quit
+			},
+		),
 	}
 
 	return &WelcomeNode{
