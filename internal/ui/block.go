@@ -29,6 +29,17 @@ func (b *Block) moveCursor(step int) (bool, tea.Cmd) {
 
 	b.cursor += step
 
+	_, ok := b.fields[b.cursor].(*Text)
+	if ok {
+		additionalStep := 1
+
+		if step < 0 {
+			additionalStep = -1
+		}
+
+		return b.moveCursor(additionalStep)
+	}
+
 	return true, b.fields[b.cursor].Focus()
 }
 
@@ -75,6 +86,10 @@ func (b *Block) Blur() {
 
 func (b *Block) Focus() tea.Cmd {
 	return b.fields[0].Focus()
+}
+
+func (b *Block) InheritStyle(style lipgloss.Style) {
+	b.style = b.style.Inherit(style)
 }
 
 func (b *Block) Value() any {

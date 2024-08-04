@@ -53,6 +53,10 @@ func (t *TextInput) Focus() tea.Cmd {
 	return t.textinput.Focus()
 }
 
+func (t *TextInput) InheritStyle(style lipgloss.Style) {
+	t.style = t.style.Inherit(style)
+}
+
 func (t *TextInput) Value() any {
 	return t.textinput.Value()
 }

@@ -40,6 +40,10 @@ func (t *Text) Handle(model *model) (bool, tea.Cmd) {
 	return false, nil
 }
 
+func (t *Text) InheritStyle(style lipgloss.Style) {
+	t.style = t.style.Inherit(style)
+}
+
 func (t *Text) Value() any {
 	return t.value
 }

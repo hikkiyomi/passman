@@ -2,6 +2,7 @@ package ui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Field interface {
@@ -12,5 +13,6 @@ type Field interface {
 	Blur()
 	Focus() tea.Cmd
 	Handle(*model) (bool, tea.Cmd)
+	InheritStyle(lipgloss.Style)
 	Value() any
 }

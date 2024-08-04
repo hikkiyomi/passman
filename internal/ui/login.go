@@ -13,7 +13,7 @@ type LoginNode struct {
 func NewLoginNode(width, height int) *LoginNode {
 	fields := []Field{
 		newBlock(
-			defaultBlockStyle.Border(lipgloss.RoundedBorder()).PaddingLeft(1).PaddingRight(1),
+			defaultBlockStyle.Border(lipgloss.RoundedBorder()).Padding(0, 1),
 			newTextInputField("   Login: ", textinput.EchoNormal, defaultTextInputStyle.MaxWidth(40)),
 			newTextInputField("Password: ", textinput.EchoPassword, defaultTextInputStyle.MaxWidth(40)),
 		),

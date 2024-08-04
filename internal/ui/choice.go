@@ -56,6 +56,11 @@ func (c *Choice) Focus() tea.Cmd {
 	return nil
 }
 
+func (c *Choice) InheritStyle(style lipgloss.Style) {
+	c.unfocusedStyle = c.unfocusedStyle.Inherit(style)
+	c.focusedStyle = c.focusedStyle.Inherit(style)
+}
+
 func (c *Choice) Value() any {
 	return c.isFocused
 }
