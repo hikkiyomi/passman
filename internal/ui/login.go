@@ -18,8 +18,8 @@ func NewLoginNode(width, height int) *LoginNode {
 			newTextInputField(defaultTextInputStyle.MaxWidth(40), "Password: ", textinput.EchoPassword),
 		),
 		newChoice(
-			defaultUnfocusedStyle,
-			defaultFocusedStyle,
+			defaultUnfocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
 			"ENTER",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*LoginNode)
