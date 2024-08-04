@@ -48,3 +48,7 @@ func (t *TextInput) Blur() {
 func (t *TextInput) Focus() tea.Cmd {
 	return t.textinput.Focus()
 }
+
+func (t *TextInput) Value() any {
+	return t.textinput.Value()
+}

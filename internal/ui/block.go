@@ -82,3 +82,13 @@ func (b *Block) Blur() {
 func (b *Block) Focus() tea.Cmd {
 	return b.fields[0].Focus()
 }
+
+func (b *Block) Value() any {
+	result := make([]any, 0, len(b.fields))
+
+	for _, field := range b.fields {
+		result = append(result, field.Value())
+	}
+
+	return result
+}

@@ -18,8 +18,14 @@ func NewLoginNode(width, height int) *LoginNode {
 			newTextInputField(defaultTextInputStyle.MaxWidth(40), "Password: ", textinput.EchoPassword),
 		),
 		newChoice(defaultUnfocusedStyle, defaultFocusedStyle, "ENTER", func(model *model) (bool, tea.Cmd) {
-			// TODO: GO TO SALT NODE
-			return false, nil
+			currentNode := model.node.(*LoginNode)
+			model.node = NewSaltNode(currentNode.sizes.width, currentNode.sizes.height)
+
+			values := currentNode.fields[0].Value().([]any)
+			model.userContext.login = values[0].(string)
+			model.userContext.password = values[1].(string)
+
+			return true, nil
 		}),
 	}
 

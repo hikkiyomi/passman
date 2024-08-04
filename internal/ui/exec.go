@@ -5,7 +5,8 @@ import (
 )
 
 type model struct {
-	node Node
+	node        Node
+	userContext UserContext
 }
 
 func NewModel() model {

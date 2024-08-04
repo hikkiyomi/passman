@@ -12,4 +12,5 @@ type Field interface {
 	Blur()
 	Focus() tea.Cmd
 	Handle(*model) (bool, tea.Cmd)
+	Value() any
 }

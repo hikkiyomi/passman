@@ -55,3 +55,7 @@ func (c *Choice) Focus() tea.Cmd {
 	c.isFocused = true
 	return nil
 }
+
+func (c *Choice) Value() any {
+	return c.isFocused
+}
