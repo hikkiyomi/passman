@@ -11,6 +11,7 @@ type WelcomeNode struct {
 
 func NewWelcomeNode(width, height int) *WelcomeNode {
 	fields := []Field{
+		newText("WELCOME TO PASSMAN", lipgloss.NewStyle().Margin(0, 1)),
 		newChoice(
 			"Login",
 			func(model *model) (bool, tea.Cmd) {
@@ -36,10 +37,6 @@ func NewWelcomeNode(width, height int) *WelcomeNode {
 	}
 }
 
-func (n WelcomeNode) Init() tea.Cmd {
-	return n.fields[0].Focus()
-}
-
 func (n *WelcomeNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd
@@ -53,8 +50,6 @@ func (n WelcomeNode) View() string {
 		lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Top,
-			"WELCOME TO PASSMAN",
-			"",
 			n.BaseNode.View(),
 		),
 	)

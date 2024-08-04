@@ -32,14 +32,8 @@ func (b *Block) moveCursor(step int) (bool, tea.Cmd) {
 	return true, b.fields[b.cursor].Focus()
 }
 
-func (b Block) Init() tea.Cmd {
-	cmds := make([]tea.Cmd, 0, len(b.fields))
-
-	for _, field := range b.fields {
-		cmds = append(cmds, field.Init())
-	}
-
-	return tea.Batch(cmds...)
+func (b *Block) Init() tea.Cmd {
+	return b.Focus()
 }
 
 func (b *Block) Update(msg tea.Msg) (Field, tea.Cmd) {

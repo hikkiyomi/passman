@@ -27,8 +27,8 @@ func newTextInputField(
 	}
 }
 
-func (t TextInput) Init() tea.Cmd {
-	return nil
+func (t *TextInput) Init() tea.Cmd {
+	return t.Focus()
 }
 
 func (t *TextInput) Update(msg tea.Msg) (Field, tea.Cmd) {

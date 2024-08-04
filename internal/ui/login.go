@@ -39,10 +39,6 @@ func NewLoginNode(width, height int) *LoginNode {
 	}
 }
 
-func (n LoginNode) Init() tea.Cmd {
-	return n.fields[0].Focus()
-}
-
 func (n *LoginNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd

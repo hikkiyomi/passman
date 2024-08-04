@@ -47,7 +47,26 @@ func (n *BaseNode) Handle(model *model) (bool, tea.Cmd) {
 	return n.fields[n.cursor].Handle(model)
 }
 
-func (n BaseNode) Init() tea.Cmd {
+func (n *BaseNode) Init() tea.Cmd {
+	firstNonTextField := func() int {
+		result := -1
+
+		for i, field := range n.fields {
+			_, ok := field.(*Text)
+			if !ok {
+				result = i
+				break
+			}
+		}
+
+		return result
+	}()
+
+	if firstNonTextField != -1 {
+		n.cursor = firstNonTextField
+		return n.fields[firstNonTextField].Init()
+	}
+
 	return nil
 }
 
@@ -85,6 +104,14 @@ func (n *BaseNode) moveCursor(step int) tea.Cmd {
 		n.fields[n.cursor] = field
 
 		return cmd
+	case *Text:
+		additionalStep := 1
+
+		if step < 0 {
+			additionalStep = -1
+		}
+
+		return n.moveCursor(additionalStep)
 	}
 
 	return n.fields[n.cursor].Focus()

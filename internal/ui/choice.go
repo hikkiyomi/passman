@@ -27,8 +27,8 @@ func newChoice(
 	}
 }
 
-func (c Choice) Init() tea.Cmd {
-	return nil
+func (c *Choice) Init() tea.Cmd {
+	return c.Focus()
 }
 
 func (c *Choice) Update(msg tea.Msg) (Field, tea.Cmd) {
