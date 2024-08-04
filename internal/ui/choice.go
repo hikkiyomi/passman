@@ -14,10 +14,10 @@ type Choice struct {
 }
 
 func newChoice(
-	unfocusedStyle lipgloss.Style,
-	focusedStyle lipgloss.Style,
 	name string,
 	handler func(*model) (bool, tea.Cmd),
+	unfocusedStyle lipgloss.Style,
+	focusedStyle lipgloss.Style,
 ) *Choice {
 	return &Choice{
 		name:           name,

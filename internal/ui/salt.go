@@ -17,13 +17,11 @@ func NewSaltNode(width, height int) *SaltNode {
 	fields := []Field{
 		newBlock(
 			defaultBlockStyle.Border(lipgloss.RoundedBorder()).Padding(0, 1, 0),
-			newTextInputField(defaultTextInputStyle, "SALT ENV: ", textinput.EchoPassword),
+			newTextInputField("SALT ENV: ", textinput.EchoPassword, defaultTextInputStyle),
 			// TODO: MAKE FIELD FOR STATIC TEXT
-			newTextInputField(defaultTextInputStyle, "    SALT: ", textinput.EchoPassword),
+			newTextInputField("    SALT: ", textinput.EchoPassword, defaultTextInputStyle),
 		),
 		newChoice(
-			defaultUnfocusedStyle,
-			defaultFocusedStyle,
 			"ENTER",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*SaltNode)
@@ -47,6 +45,8 @@ func NewSaltNode(width, height int) *SaltNode {
 
 				return true, nil
 			},
+			defaultUnfocusedStyle,
+			defaultFocusedStyle,
 		),
 	}
 

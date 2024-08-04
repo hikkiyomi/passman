@@ -11,7 +11,11 @@ type TextInput struct {
 	style     lipgloss.Style
 }
 
-func newTextInputField(style lipgloss.Style, prompt string, echoMode textinput.EchoMode) *TextInput {
+func newTextInputField(
+	prompt string,
+	echoMode textinput.EchoMode,
+	style lipgloss.Style,
+) *TextInput {
 	ti := textinput.New()
 
 	ti.Prompt = prompt

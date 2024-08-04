@@ -14,12 +14,10 @@ func NewLoginNode(width, height int) *LoginNode {
 	fields := []Field{
 		newBlock(
 			defaultBlockStyle.Border(lipgloss.RoundedBorder()).PaddingLeft(1).PaddingRight(1),
-			newTextInputField(defaultTextInputStyle.MaxWidth(40), "   Login: ", textinput.EchoNormal),
-			newTextInputField(defaultTextInputStyle.MaxWidth(40), "Password: ", textinput.EchoPassword),
+			newTextInputField("   Login: ", textinput.EchoNormal, defaultTextInputStyle.MaxWidth(40)),
+			newTextInputField("Password: ", textinput.EchoPassword, defaultTextInputStyle.MaxWidth(40)),
 		),
 		newChoice(
-			defaultUnfocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
-			defaultFocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
 			"ENTER",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*LoginNode)
@@ -31,6 +29,8 @@ func NewLoginNode(width, height int) *LoginNode {
 
 				return true, nil
 			},
+			defaultUnfocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
 		),
 	}
 
