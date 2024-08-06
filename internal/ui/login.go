@@ -11,11 +11,13 @@ type LoginNode struct {
 }
 
 func NewLoginNode(width, height int) *LoginNode {
+	widthForNode := 30
+
 	fields := []Field{
 		newBlock(
 			defaultBlockStyle.Border(lipgloss.RoundedBorder()).Padding(0, 1),
-			newTextInputField("   Login: ", textinput.EchoNormal, defaultTextInputStyle.MaxWidth(40)),
-			newTextInputField("Password: ", textinput.EchoPassword, defaultTextInputStyle.MaxWidth(40)),
+			newTextInputField("   Login: ", textinput.EchoNormal, defaultTextInputStyle.Width(widthForNode)),
+			newTextInputField("Password: ", textinput.EchoPassword, defaultTextInputStyle.Width(widthForNode)),
 		),
 		newChoice(
 			"ENTER",
@@ -29,8 +31,8 @@ func NewLoginNode(width, height int) *LoginNode {
 
 				return true, nil
 			},
-			defaultUnfocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
-			defaultFocusedStyle.Width(30).AlignHorizontal(lipgloss.Center),
+			defaultUnfocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center),
 		),
 	}
 

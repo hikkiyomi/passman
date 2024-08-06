@@ -10,6 +10,8 @@ type WelcomeNode struct {
 }
 
 func NewWelcomeNode(width, height int) *WelcomeNode {
+	widthForNode := 16
+
 	fields := []Field{
 		newText("WELCOME TO PASSMAN", lipgloss.NewStyle().Margin(0, 0, 1)),
 		newChoice(
@@ -19,16 +21,16 @@ func NewWelcomeNode(width, height int) *WelcomeNode {
 				model.node = NewLoginNode(currentNode.sizes.width, currentNode.sizes.height)
 				return true, nil
 			},
-			defaultUnfocusedStyle.Width(16).AlignHorizontal(lipgloss.Center),
-			defaultFocusedStyle.Width(16).AlignHorizontal(lipgloss.Center),
+			defaultUnfocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center),
 		),
 		newChoice(
 			"Exit",
 			func(model *model) (bool, tea.Cmd) {
 				return false, tea.Quit
 			},
-			defaultUnfocusedStyle.Width(15).AlignHorizontal(lipgloss.Center),
-			defaultFocusedStyle.Width(15).AlignHorizontal(lipgloss.Center),
+			defaultUnfocusedStyle.Width(widthForNode-1).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode-1).AlignHorizontal(lipgloss.Center),
 		),
 	}
 
