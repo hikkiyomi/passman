@@ -32,7 +32,10 @@ func NewFilePicker(width, height int, allowDirs bool) *FilePicker {
 	fp.CurrentDirectory, _ = os.UserHomeDir()
 	fp.DirAllowed = allowDirs
 
-	fp, _ = fp.Update(tea.WindowSizeMsg{Width: width, Height: height})
+	fp, _ = fp.Update(tea.WindowSizeMsg{
+		Width:  width,
+		Height: int(lipgloss.Position(height) * lipgloss.Center),
+	})
 
 	return &FilePicker{
 		filepicker: fp,
