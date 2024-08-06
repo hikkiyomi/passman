@@ -3,6 +3,8 @@ package ui
 import (
 	"log"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -15,15 +17,36 @@ type Node interface {
 	Handle(*model) (bool, tea.Cmd)
 }
 
-type Sizes struct {
-	width  int
-	height int
+type baseNodeKeymap struct {
+	Up   key.Binding
+	Down key.Binding
+}
+
+var defaultBaseNodeKeymap = baseNodeKeymap{
+	Up: key.NewBinding(
+		key.WithKeys("up"),
+		key.WithHelp("↑", "move up"),
+	),
+	Down: key.NewBinding(
+		key.WithKeys("down", "tab"),
+		key.WithHelp("↓/tab", "move down"),
+	),
+}
+
+func (k baseNodeKeymap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Up, k.Down}
+}
+
+func (k baseNodeKeymap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{k.ShortHelp()}
 }
 
 type BaseNode struct {
 	cursor int
 	fields []Field
 	sizes  Sizes
+	help   help.Model
+	keymap baseNodeKeymap
 }
 
 func newBaseNode(width, height int, choices ...Field) BaseNode {
@@ -34,6 +57,8 @@ func newBaseNode(width, height int, choices ...Field) BaseNode {
 			width:  width,
 			height: height,
 		},
+		help:   help.New(),
+		keymap: defaultBaseNodeKeymap,
 	}
 }
 
@@ -158,5 +183,5 @@ func (n BaseNode) render() string {
 }
 
 func (n BaseNode) View() string {
-	return n.render()
+	return n.render() + "\n\n" + n.help.View(n.keymap)
 }
