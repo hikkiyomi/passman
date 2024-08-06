@@ -18,7 +18,7 @@ func NewWelcomeNode(width, height int) *WelcomeNode {
 			"Login",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*WelcomeNode)
-				model.node = NewLoginNode(currentNode.sizes.width, currentNode.sizes.height)
+				model.SetNode(NewLoginNode(currentNode.sizes.width, currentNode.sizes.height))
 				return true, nil
 			},
 			defaultUnfocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center),

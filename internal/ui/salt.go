@@ -31,7 +31,7 @@ func NewSaltNode(width, height int) *SaltNode {
 			"ENTER",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*SaltNode)
-				model.node = nil
+				model.SetNode(NewDatabaseSelectionNode(currentNode.sizes.width, currentNode.sizes.height))
 
 				values := currentNode.fields[1].Value().([]any)
 				saltEnv := values[0].(string)

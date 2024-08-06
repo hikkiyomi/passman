@@ -23,7 +23,7 @@ func NewLoginNode(width, height int) *LoginNode {
 			"ENTER",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*LoginNode)
-				model.node = NewSaltNode(currentNode.sizes.width, currentNode.sizes.height)
+				model.SetNode(NewSaltNode(currentNode.sizes.width, currentNode.sizes.height))
 
 				values := currentNode.fields[0].Value().([]any)
 				model.userContext.login = values[0].(string)

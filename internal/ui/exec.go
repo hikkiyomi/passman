@@ -7,12 +7,18 @@ import (
 type model struct {
 	node        Node
 	userContext UserContext
+	nodeHistory []Node
 }
 
 func NewModel() model {
 	return model{
 		node: NewWelcomeNode(0, 0),
 	}
+}
+
+func (m *model) SetNode(node Node) {
+	m.nodeHistory = append(m.nodeHistory, m.node)
+	m.node = node
 }
 
 func (m model) Init() tea.Cmd {
@@ -36,6 +42,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if hasChanged {
 				cmds = append(cmds, m.node.Init())
 			}
+		case "esc":
+			length := len(m.nodeHistory)
+
+			if length == 0 {
+				break
+			}
+
+			m.node = m.nodeHistory[length-1]
+			m.nodeHistory = m.nodeHistory[:length-1]
 		}
 	}
 
