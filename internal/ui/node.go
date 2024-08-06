@@ -12,7 +12,6 @@ type Node interface {
 	Update(tea.Msg) (Node, tea.Cmd)
 	View() string
 
-	GetNext() Node
 	Handle(*model) (bool, tea.Cmd)
 }
 
@@ -24,7 +23,6 @@ type Sizes struct {
 type BaseNode struct {
 	cursor int
 	fields []Field
-	next   Node
 	sizes  Sizes
 }
 
@@ -37,10 +35,6 @@ func newBaseNode(width, height int, choices ...Field) BaseNode {
 			height: height,
 		},
 	}
-}
-
-func (n BaseNode) GetNext() Node {
-	return n.next
 }
 
 func (n *BaseNode) Handle(model *model) (bool, tea.Cmd) {
