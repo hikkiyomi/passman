@@ -1,8 +1,10 @@
 package ui
 
 import (
+	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/filepicker"
 	"github.com/charmbracelet/bubbles/help"
@@ -17,6 +19,7 @@ type FilePicker struct {
 	help       help.Model
 	selected   string
 	sizes      Sizes
+	createNew  bool
 }
 
 type fpKeymapAdapter struct {
@@ -27,10 +30,15 @@ func newFpKeymapAdapter(keymap filepicker.KeyMap) fpKeymapAdapter {
 	return fpKeymapAdapter{keymap}
 }
 
-func NewFilePicker(width, height int, allowDirs bool) *FilePicker {
+func NewFilePicker(width, height int, createNew bool) *FilePicker {
 	fp := filepicker.New()
 	fp.CurrentDirectory, _ = os.UserHomeDir()
-	fp.DirAllowed = allowDirs
+
+	// If createNew is true, then we are creating new database, hence selecting directories.
+	// In these directories we will create a new database file.
+	// Otherwise, we should select files which represent the database itself.
+	fp.DirAllowed = createNew
+	fp.FileAllowed = !createNew
 
 	fp, _ = fp.Update(tea.WindowSizeMsg{
 		Width:  width,
@@ -45,6 +53,7 @@ func NewFilePicker(width, height int, allowDirs bool) *FilePicker {
 			width:  width,
 			height: height,
 		},
+		createNew: createNew,
 	}
 }
 
@@ -54,6 +63,7 @@ func (f *FilePicker) Init() tea.Cmd {
 
 func (f *FilePicker) Update(msg tea.Msg) (Node, tea.Cmd) {
 	var cmd tea.Cmd
+
 	f.filepicker, cmd = f.filepicker.Update(msg)
 
 	if didSelect, path := f.filepicker.DidSelectFile(msg); didSelect {
@@ -65,6 +75,7 @@ func (f *FilePicker) Update(msg tea.Msg) (Node, tea.Cmd) {
 
 func (fk fpKeymapAdapter) ShortHelp() []key.Binding {
 	return []key.Binding{
+		fk.keymap.Back,
 		fk.keymap.Down,
 		fk.keymap.Up,
 		fk.keymap.Open,
@@ -74,8 +85,8 @@ func (fk fpKeymapAdapter) ShortHelp() []key.Binding {
 
 func (fk fpKeymapAdapter) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{fk.keymap.Down, fk.keymap.Up, fk.keymap.Open, fk.keymap.Select},
-		{fk.keymap.GoToLast, fk.keymap.GoToTop, fk.keymap.Back},
+		fk.ShortHelp(),
+		{fk.keymap.GoToLast, fk.keymap.GoToTop},
 		{fk.keymap.PageDown, fk.keymap.PageUp},
 	}
 }
@@ -102,6 +113,35 @@ func (f FilePicker) View() string {
 	)
 }
 
+func (f FilePicker) chooseErrorMessage() string {
+	if f.createNew {
+		return "You can only select directories while creating new database."
+	}
+
+	return "You can only select files while opening existing database."
+}
+
 func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
-	return false, nil
+	var msgCmd tea.Cmd = nil
+	node, _ := f.Update(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
+
+	tempNode, ok := node.(*FilePicker)
+	if !ok {
+		log.Fatal("Couldn't convert node into FilePicker")
+	}
+
+	f = tempNode
+
+	if f.selected == "" {
+		msgCmd = formMessage(
+			model,
+			f.chooseErrorMessage(),
+			defaultErrorStyle,
+			3*time.Second,
+		)
+	} else {
+		model.userContext.path = f.selected
+	}
+
+	return true, tea.Batch(msgCmd)
 }

@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"log"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,22 +31,35 @@ func NewSaltNode(width, height int) *SaltNode {
 			"ENTER",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*SaltNode)
-				model.SetNode(NewDatabaseSelectionNode(currentNode.sizes.width, currentNode.sizes.height))
-
 				values := currentNode.fields[1].Value().([]any)
 				saltEnv := values[0].(string)
 				salt := values[2].(string)
 
 				if saltEnv == "" && salt == "" {
-					log.Fatal("Either salt env or salt should be passed.")
+					cmd := formMessage(
+						model,
+						"Either env or salt should be non-empty.",
+						defaultErrorStyle,
+						3*time.Second,
+					)
+
+					return false, cmd
 				} else if saltEnv != "" {
 					var ok bool
 					salt, ok = viper.Get(saltEnv).(string)
 					if !ok {
-						log.Fatal("Couldn't cast salt from saltEnv to string.")
+						cmd := formMessage(
+							model,
+							"Couldn't get salt from env variable.",
+							defaultErrorStyle,
+							3*time.Second,
+						)
+
+						return false, cmd
 					}
 				}
 
+				model.SetNode(NewDatabaseSelectionNode(currentNode.sizes.width, currentNode.sizes.height))
 				model.userContext.salt = salt
 
 				return true, nil

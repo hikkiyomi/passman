@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -41,6 +43,28 @@ type Sizes struct {
 	height int
 }
 
+type clearMsg struct {
+	message *string
+}
+
+func clearMsgAfter(t time.Duration, message *string) tea.Cmd {
+	return tea.Tick(t, func(_ time.Time) tea.Msg {
+		return clearMsg{message}
+	})
+}
+
+func formMessage(
+	model *model,
+	message string,
+	style lipgloss.Style,
+	timeout time.Duration,
+) tea.Cmd {
+	message = style.Render(message)
+	model.message = &message
+
+	return clearMsgAfter(timeout, &message)
+}
+
 type model struct {
 	node        Node
 	userContext UserContext
@@ -48,6 +72,7 @@ type model struct {
 	help        help.Model
 	keymap      modelKeymap
 	sizes       Sizes
+	message     *string
 }
 
 func NewModel() model {
@@ -69,6 +94,7 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
+	needToUpdate := true
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -87,6 +113,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if hasChanged {
 				// About tea.ClearScreen and why is it necessary: read lower.
 				cmds = append(cmds, m.node.Init(), tea.ClearScreen)
+			}
+
+			if _, ok := m.node.(*FilePicker); ok {
+				needToUpdate = false
 			}
 		case key.Matches(msg, m.keymap.Back):
 			length := len(m.nodeHistory)
@@ -109,11 +139,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// With clearing the screen that does not happen. So that's a reason to do clearing.
 			cmds = append(cmds, tea.ClearScreen)
 		}
+	case clearMsg:
+		if m.message == msg.message {
+			m.message = nil
+			cmds = append(cmds, tea.ClearScreen)
+		}
 	}
 
 	var cmd tea.Cmd
 
-	if m.node != nil {
+	if m.node != nil && needToUpdate {
 		m.node, cmd = m.node.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -126,9 +161,20 @@ func (m model) View() string {
 		return ""
 	}
 
+	messagePart := ""
+
+	if m.message != nil {
+		messagePart = lipgloss.NewStyle().
+			Width(m.sizes.width).
+			AlignVertical(lipgloss.Center).
+			AlignHorizontal(lipgloss.Center).
+			Render(*m.message)
+	}
+
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		m.node.View(),
+		messagePart,
 		lipgloss.NewStyle().
 			Width(m.sizes.width).
 			AlignVertical(lipgloss.Bottom).
