@@ -2,16 +2,20 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+	validator "github.com/wagslane/go-password-validator"
 )
 
 type LoginPasswordForm struct {
 	BaseNode
+	progress progress.Model
 }
 
 func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPasswordForm {
@@ -102,12 +106,33 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 
 	return &LoginPasswordForm{
 		BaseNode: newBaseNode(width, height, fields...),
+		progress: progress.New(progress.WithDefaultGradient()),
 	}
 }
 
 func (n *LoginPasswordForm) Update(msg tea.Msg) (Node, tea.Cmd) {
-	cmd := updateNode(&n.BaseNode, msg)
-	return n, cmd
+	var cmds []tea.Cmd
+
+	cmds = append(cmds, updateNode(&n.BaseNode, msg))
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		if block, isBlock := n.fields[n.cursor].(*Block); isBlock {
+			if tif, isTextInputField := block.fields[block.cursor].(*TextInput); isTextInputField {
+				if strings.HasPrefix(tif.textinput.Prompt, "Password") {
+					entropy := validator.GetEntropy(tif.textinput.Value())
+					cmd := n.progress.SetPercent(min(1, entropy/120))
+					cmds = append(cmds, cmd)
+				}
+			}
+		}
+	case progress.FrameMsg:
+		progressModel, cmd := n.progress.Update(msg)
+		n.progress = progressModel.(progress.Model)
+		cmds = append(cmds, cmd)
+	}
+
+	return n, tea.Batch(cmds...)
 }
 
 func (n LoginPasswordForm) View() string {
@@ -119,6 +144,9 @@ func (n LoginPasswordForm) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Top,
 			n.BaseNode.View(),
+			"\n",
+			"Password Strength:\n",
+			n.progress.View(),
 		),
 	)
 }
