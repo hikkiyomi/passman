@@ -30,6 +30,20 @@ func newFpKeymapAdapter(keymap filepicker.KeyMap) fpKeymapAdapter {
 	return fpKeymapAdapter{keymap}
 }
 
+func rebindKeymap() filepicker.KeyMap {
+	return filepicker.KeyMap{
+		GoToTop:  key.NewBinding(key.WithKeys("g"), key.WithHelp("g", "first")),
+		GoToLast: key.NewBinding(key.WithKeys("G"), key.WithHelp("G", "last")),
+		Down:     key.NewBinding(key.WithKeys("down"), key.WithHelp("↓", "move down")),
+		Up:       key.NewBinding(key.WithKeys("up"), key.WithHelp("↑", "move up")),
+		PageUp:   key.NewBinding(key.WithKeys("pgup"), key.WithHelp("pgup", "page up")),
+		PageDown: key.NewBinding(key.WithKeys("pgdown"), key.WithHelp("pgdown", "page down")),
+		Back:     key.NewBinding(key.WithKeys("left"), key.WithHelp("←", "back")),
+		Open:     key.NewBinding(key.WithKeys("right", "enter"), key.WithHelp("→/enter", "open")),
+		Select:   key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "select")),
+	}
+}
+
 func NewFilePicker(width, height int, createNew bool) *FilePicker {
 	fp := filepicker.New()
 	fp.CurrentDirectory, _ = os.UserHomeDir()
@@ -39,6 +53,8 @@ func NewFilePicker(width, height int, createNew bool) *FilePicker {
 	// Otherwise, we should select files which represent the database itself.
 	fp.DirAllowed = createNew
 	fp.FileAllowed = !createNew
+
+	fp.KeyMap = rebindKeymap()
 
 	fp, _ = fp.Update(tea.WindowSizeMsg{
 		Width:  width,
@@ -63,10 +79,21 @@ func (f *FilePicker) Init() tea.Cmd {
 
 func (f *FilePicker) Update(msg tea.Msg) (Node, tea.Cmd) {
 	var cmd tea.Cmd
+	var modifiedMsg tea.Msg
 
-	f.filepicker, cmd = f.filepicker.Update(msg)
+	if tmpMsg, ok := msg.(tea.WindowSizeMsg); ok {
+		f.sizes.height = tmpMsg.Height
+		f.sizes.width = tmpMsg.Width
 
-	if didSelect, path := f.filepicker.DidSelectFile(msg); didSelect {
+		tmpMsg.Height = int(lipgloss.Position(f.sizes.height) * lipgloss.Center)
+		modifiedMsg = tmpMsg
+	} else {
+		modifiedMsg = msg
+	}
+
+	f.filepicker, cmd = f.filepicker.Update(modifiedMsg)
+
+	if didSelect, path := f.filepicker.DidSelectFile(modifiedMsg); didSelect {
 		f.selected = path
 	}
 
@@ -99,7 +126,11 @@ func (f FilePicker) View() string {
 	var s strings.Builder
 
 	if f.selected == "" {
-		s.WriteString("Pick your database file / directory, where you want to place it:")
+		if f.createNew {
+			s.WriteString("Pick directory:")
+		} else {
+			s.WriteString("Pick file:")
+		}
 	}
 
 	s.WriteString("\n\n" + f.filepicker.View() + "\n\n\n" + f.renderHelp())
@@ -123,7 +154,7 @@ func (f FilePicker) chooseErrorMessage() string {
 
 func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
 	var msgCmd tea.Cmd = nil
-	node, _ := f.Update(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
+	node, cmd := f.Update(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
 
 	tempNode, ok := node.(*FilePicker)
 	if !ok {
@@ -141,7 +172,13 @@ func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
 		)
 	} else {
 		model.userContext.path = f.selected
+		msgCmd = formMessage(
+			model,
+			"You picked: "+f.selected,
+			defaultMessageStyle,
+			3*time.Second,
+		)
 	}
 
-	return true, tea.Batch(msgCmd)
+	return true, tea.Batch(cmd, msgCmd)
 }

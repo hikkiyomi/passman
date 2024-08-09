@@ -105,18 +105,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, m.keymap.Submit):
-			var msgCmd tea.Cmd
+			var handleCmd tea.Cmd
 
-			hasChanged, msgCmd := m.node.Handle(&m)
-			cmds = append(cmds, msgCmd)
+			if _, ok := m.node.(*FilePicker); ok {
+				needToUpdate = false
+			}
+
+			hasChanged, handleCmd := m.node.Handle(&m)
+			cmds = append(cmds, handleCmd)
 
 			if hasChanged {
 				// About tea.ClearScreen and why is it necessary: read lower.
 				cmds = append(cmds, m.node.Init(), tea.ClearScreen)
-			}
-
-			if _, ok := m.node.(*FilePicker); ok {
-				needToUpdate = false
 			}
 		case key.Matches(msg, m.keymap.Back):
 			length := len(m.nodeHistory)
