@@ -5,41 +5,11 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hikkiyomi/passman/internal/databases"
-	"github.com/hikkiyomi/passman/internal/encryption"
+	"github.com/hikkiyomi/passman/cmd/actions"
 	"github.com/hikkiyomi/passman/internal/ui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var (
-	User            string
-	saltEnv         string
-	Salt            string
-	Path            string
-	MasterPassword  string
-	service         string
-	data            string
-	chosenEncryptor string = "aes"
-	database        *databases.Database
-)
-
-func getSalt(saltEnv string) string {
-	salt, ok := viper.Get(saltEnv).(string)
-	if !ok {
-		log.Fatal("Couldn't find any salt in provided env variable")
-	}
-
-	return salt
-}
-
-func initDatabase(cmd *cobra.Command, args []string) {
-	viper.Set("user", User)
-
-	Salt = getSalt(saltEnv)
-	encryptor := encryption.GetEncryptor(chosenEncryptor, MasterPassword, Salt)
-	database = databases.Open(User, Path, encryptor)
-}
 
 var rootCmd = &cobra.Command{
 	Use:   "passman",
@@ -68,6 +38,13 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+
+	rootCmd.AddCommand(actions.ExportCmd)
+	rootCmd.AddCommand(actions.GetCmd)
+	rootCmd.AddCommand(actions.ImportCmd)
+	rootCmd.AddCommand(actions.RemoveCmd)
+	rootCmd.AddCommand(actions.SaveCmd)
+	rootCmd.AddCommand(actions.UpdateCmd)
 }
 
 func initConfig() {

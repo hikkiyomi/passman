@@ -1,6 +1,7 @@
-package cmd
+package actions
 
 import (
+	"github.com/hikkiyomi/passman/internal/common"
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
 )
@@ -20,24 +21,22 @@ var ImportCmd = &cobra.Command{
 		importingData := importer.Import()
 
 		for _, record := range importingData {
-			database.Insert(&record)
+			common.Database.Insert(&record)
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(ImportCmd)
-
-	ImportCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	ImportCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	ImportCmd.Flags().StringVarP(&common.SaltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	ImportCmd.Flags().StringVar(&common.ChosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
 	ImportCmd.Flags().StringVar(&importerType, "import-type", "", "specifies the file type to import from.")
-	ImportCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
+	ImportCmd.Flags().StringVar(&common.Path, "path", "./database.db", "specifies the path to database.")
 	ImportCmd.Flags().StringVar(&browser, "browser", "", "specifies the browser from which the data has come originally. Currently only Chrome and Firefox are supported.")
 
-	ImportCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	ImportCmd.Flags().StringVar(&common.User, "user", "", "specifies the owner of the saving data.")
 	ImportCmd.MarkFlagRequired("user")
 
-	ImportCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	ImportCmd.Flags().StringVar(&common.MasterPassword, "password", "", "specifies the master password.")
 	ImportCmd.MarkFlagRequired("password")
 
 	ImportCmd.Flags().StringVar(&importFrom, "from", "", "specifies the path to import from.")

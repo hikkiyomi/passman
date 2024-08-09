@@ -13,7 +13,7 @@ func NewWelcomeNode(width, height int) *WelcomeNode {
 	widthForNode := 16
 
 	fields := []Field{
-		newText("WELCOME TO PASSMAN", lipgloss.NewStyle().MarginBottom(1)),
+		newText("WELCOME TO PASSMAN", defaultHeaderTextStyle),
 		newChoice(
 			"Login",
 			func(model *model) (bool, tea.Cmd) {

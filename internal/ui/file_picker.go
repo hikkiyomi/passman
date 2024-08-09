@@ -309,6 +309,9 @@ func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
 			defaultMessageStyle,
 			3*time.Second,
 		)
+
+		currentNode := model.node.(*FilePicker)
+		model.SetNode(NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height))
 	}
 
 	return true, tea.Batch(cmd, msgCmd)
