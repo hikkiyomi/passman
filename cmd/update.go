@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var updateCmd = &cobra.Command{
+var UpdateCmd = &cobra.Command{
 	Use:    "update",
 	Short:  "Updates the data for some service.",
 	PreRun: initDatabase,
@@ -26,21 +26,21 @@ var updateCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(UpdateCmd)
 
-	updateCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	updateCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
-	updateCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	UpdateCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	UpdateCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
+	UpdateCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
 
-	updateCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	updateCmd.MarkFlagRequired("user")
+	UpdateCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	UpdateCmd.MarkFlagRequired("user")
 
-	updateCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	updateCmd.MarkFlagRequired("password")
+	UpdateCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	UpdateCmd.MarkFlagRequired("password")
 
-	updateCmd.Flags().Int64("id", 0, "specifies the id of record to be deleted.")
-	updateCmd.MarkFlagRequired("id")
+	UpdateCmd.Flags().Int64("id", 0, "specifies the id of record to be deleted.")
+	UpdateCmd.MarkFlagRequired("id")
 
-	updateCmd.Flags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
-	updateCmd.MarkFlagRequired("data")
+	UpdateCmd.Flags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
+	UpdateCmd.MarkFlagRequired("data")
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var removeCmd = &cobra.Command{
+var RemoveCmd = &cobra.Command{
 	Use:    "remove",
 	Short:  "Removes the data for some service.",
 	PreRun: initDatabase,
@@ -25,18 +25,18 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(RemoveCmd)
 
-	removeCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	removeCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
-	removeCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	RemoveCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	RemoveCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
+	RemoveCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
 
-	removeCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	removeCmd.MarkFlagRequired("user")
+	RemoveCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	RemoveCmd.MarkFlagRequired("user")
 
-	removeCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	removeCmd.MarkFlagRequired("password")
+	RemoveCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	RemoveCmd.MarkFlagRequired("password")
 
-	removeCmd.Flags().Int64("id", 0, "specifies the id of record to be deleted.")
-	removeCmd.MarkFlagRequired("id")
+	RemoveCmd.Flags().Int64("id", 0, "specifies the id of record to be deleted.")
+	RemoveCmd.MarkFlagRequired("id")
 }

@@ -11,7 +11,7 @@ var (
 	importerType string
 )
 
-var importCmd = &cobra.Command{
+var ImportCmd = &cobra.Command{
 	Use:    "import",
 	Short:  "Imports data from given file.",
 	PreRun: initDatabase,
@@ -26,20 +26,20 @@ var importCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(importCmd)
+	rootCmd.AddCommand(ImportCmd)
 
-	importCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	importCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
-	importCmd.Flags().StringVar(&importerType, "import-type", "", "specifies the file type to import from.")
-	importCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
-	importCmd.Flags().StringVar(&browser, "browser", "", "specifies the browser from which the data has come originally. Currently only Chrome and Firefox are supported.")
+	ImportCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	ImportCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	ImportCmd.Flags().StringVar(&importerType, "import-type", "", "specifies the file type to import from.")
+	ImportCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
+	ImportCmd.Flags().StringVar(&browser, "browser", "", "specifies the browser from which the data has come originally. Currently only Chrome and Firefox are supported.")
 
-	importCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	importCmd.MarkFlagRequired("user")
+	ImportCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	ImportCmd.MarkFlagRequired("user")
 
-	importCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	importCmd.MarkFlagRequired("password")
+	ImportCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	ImportCmd.MarkFlagRequired("password")
 
-	importCmd.Flags().StringVar(&importFrom, "from", "", "specifies the path to import from.")
-	importCmd.MarkFlagRequired("from")
+	ImportCmd.Flags().StringVar(&importFrom, "from", "", "specifies the path to import from.")
+	ImportCmd.MarkFlagRequired("from")
 }

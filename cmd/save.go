@@ -1,29 +1,17 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/hikkiyomi/passman/internal/databases"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-func getSalt(saltEnv string) string {
-	salt, ok := viper.Get(saltEnv).(string)
-	if !ok {
-		log.Fatal("Couldn't find any salt in provided env variable")
-	}
-
-	return salt
-}
-
-var saveCmd = &cobra.Command{
+var SaveCmd = &cobra.Command{
 	Use:    "save",
 	Short:  "Saves the data for some service.",
 	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
 		record := databases.Record{
-			Owner:   user,
+			Owner:   User,
 			Service: service,
 			Data:    []byte(data),
 		}
@@ -33,21 +21,21 @@ var saveCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(saveCmd)
+	rootCmd.AddCommand(SaveCmd)
 
-	saveCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	saveCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
-	saveCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	SaveCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	SaveCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
+	SaveCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
 
-	saveCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	saveCmd.MarkFlagRequired("user")
+	SaveCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	SaveCmd.MarkFlagRequired("user")
 
-	saveCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	saveCmd.MarkFlagRequired("password")
+	SaveCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	SaveCmd.MarkFlagRequired("password")
 
-	saveCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
-	saveCmd.MarkFlagRequired("service")
+	SaveCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
+	SaveCmd.MarkFlagRequired("service")
 
-	saveCmd.Flags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
-	saveCmd.MarkFlagRequired("data")
+	SaveCmd.Flags().StringVar(&data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
+	SaveCmd.MarkFlagRequired("data")
 }

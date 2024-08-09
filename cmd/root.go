@@ -13,22 +13,32 @@ import (
 )
 
 var (
-	user            string
+	User            string
 	saltEnv         string
-	path            string
-	masterPassword  string
+	Salt            string
+	Path            string
+	MasterPassword  string
 	service         string
 	data            string
-	chosenEncryptor string
+	chosenEncryptor string = "aes"
 	database        *databases.Database
 )
 
-func initDatabase(cmd *cobra.Command, args []string) {
-	viper.Set("user", user)
+func getSalt(saltEnv string) string {
+	salt, ok := viper.Get(saltEnv).(string)
+	if !ok {
+		log.Fatal("Couldn't find any salt in provided env variable")
+	}
 
-	salt := getSalt(saltEnv)
-	encryptor := encryption.GetEncryptor(chosenEncryptor, masterPassword, salt)
-	database = databases.Open(user, path, encryptor)
+	return salt
+}
+
+func initDatabase(cmd *cobra.Command, args []string) {
+	viper.Set("user", User)
+
+	Salt = getSalt(saltEnv)
+	encryptor := encryption.GetEncryptor(chosenEncryptor, MasterPassword, Salt)
+	database = databases.Open(User, Path, encryptor)
 }
 
 var rootCmd = &cobra.Command{

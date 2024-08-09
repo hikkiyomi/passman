@@ -10,7 +10,7 @@ var (
 	exporterType string
 )
 
-var exportCmd = &cobra.Command{
+var ExportCmd = &cobra.Command{
 	Use:    "export",
 	Short:  "Exports data into given file.",
 	PreRun: initDatabase,
@@ -23,19 +23,19 @@ var exportCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(exportCmd)
+	rootCmd.AddCommand(ExportCmd)
 
-	exportCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	exportCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
-	exportCmd.Flags().StringVar(&exporterType, "export-type", "", "specifies the file type to export into.")
-	exportCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
+	ExportCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	ExportCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	ExportCmd.Flags().StringVar(&exporterType, "export-type", "", "specifies the file type to export into.")
+	ExportCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
 
-	exportCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	exportCmd.MarkFlagRequired("user")
+	ExportCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	ExportCmd.MarkFlagRequired("user")
 
-	exportCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	exportCmd.MarkFlagRequired("password")
+	ExportCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	ExportCmd.MarkFlagRequired("password")
 
-	exportCmd.Flags().StringVar(&exportInto, "into", "", "specifies the path to export into.")
-	exportCmd.MarkFlagRequired("into")
+	ExportCmd.Flags().StringVar(&exportInto, "into", "", "specifies the path to export into.")
+	ExportCmd.MarkFlagRequired("into")
 }

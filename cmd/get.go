@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var getCmd = &cobra.Command{
+var GetCmd = &cobra.Command{
 	Use:    "get",
 	Short:  "Fetches data from database.",
 	PreRun: initDatabase,
@@ -34,16 +34,16 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(getCmd)
+	rootCmd.AddCommand(GetCmd)
 
-	getCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
-	getCmd.Flags().StringVar(&path, "path", "./database.db", "specifies the path to database.")
-	getCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
-	getCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
+	GetCmd.Flags().StringVarP(&saltEnv, "salt", "s", "PASSMAN_SALT", "specifies the environment variable where the salt resides.")
+	GetCmd.Flags().StringVar(&Path, "path", "./database.db", "specifies the path to database.")
+	GetCmd.Flags().StringVar(&chosenEncryptor, "encryptor", "aes", "specifies encryption algorithm.")
+	GetCmd.Flags().StringVar(&service, "service", "", "specifies the service of the saving data.")
 
-	getCmd.Flags().StringVar(&user, "user", "", "specifies the owner of the saving data.")
-	getCmd.MarkFlagRequired("user")
+	GetCmd.Flags().StringVar(&User, "user", "", "specifies the owner of the saving data.")
+	GetCmd.MarkFlagRequired("user")
 
-	getCmd.Flags().StringVar(&masterPassword, "password", "", "specifies the master password.")
-	getCmd.MarkFlagRequired("password")
+	GetCmd.Flags().StringVar(&MasterPassword, "password", "", "specifies the master password.")
+	GetCmd.MarkFlagRequired("password")
 }
