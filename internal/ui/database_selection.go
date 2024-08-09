@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -15,7 +16,20 @@ func NewDatabaseSelectionNode(width, height int) *DatabaseSelectionNode {
 			"Create new database",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*DatabaseSelectionNode)
-				model.SetNode(NewFilePicker(currentNode.sizes.width, currentNode.sizes.height, true))
+
+				model.SetNode(
+					NewFilePicker(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						true,
+						newTextInputField(
+							"Enter database name: ",
+							textinput.EchoNormal,
+							defaultTextInputStyle.Inline(true).MaxWidth(50),
+						),
+					),
+				)
+
 				return true, nil
 			},
 			defaultUnfocusedStyle,
@@ -25,7 +39,16 @@ func NewDatabaseSelectionNode(width, height int) *DatabaseSelectionNode {
 			"Open existing",
 			func(model *model) (bool, tea.Cmd) {
 				currentNode := model.node.(*DatabaseSelectionNode)
-				model.SetNode(NewFilePicker(currentNode.sizes.width, currentNode.sizes.height, false))
+
+				model.SetNode(
+					NewFilePicker(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						false,
+						nil,
+					),
+				)
+
 				return true, nil
 			},
 			defaultUnfocusedStyle,

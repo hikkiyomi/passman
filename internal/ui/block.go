@@ -6,9 +6,10 @@ import (
 )
 
 type Block struct {
-	cursor int
-	fields []Field
-	style  lipgloss.Style
+	cursor    int
+	fields    []Field
+	style     lipgloss.Style
+	isFocused bool
 }
 
 func newBlock(style lipgloss.Style, fields ...Field) *Block {
@@ -82,10 +83,25 @@ func (b *Block) Blur() {
 	for _, field := range b.fields {
 		field.Blur()
 	}
+
+	b.isFocused = false
 }
 
 func (b *Block) Focus() tea.Cmd {
+	b.isFocused = true
 	return b.fields[0].Focus()
+}
+
+func (b *Block) Toggle() tea.Cmd {
+	var cmd tea.Cmd
+
+	if b.isFocused {
+		b.Blur()
+	} else {
+		cmd = b.Focus()
+	}
+
+	return cmd
 }
 
 func (b *Block) InheritStyle(style lipgloss.Style) {

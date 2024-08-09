@@ -36,6 +36,10 @@ func (t *Text) Focus() tea.Cmd {
 	return nil
 }
 
+func (t *Text) Toggle() tea.Cmd {
+	return nil
+}
+
 func (t *Text) Handle(model *model) (bool, tea.Cmd) {
 	return false, nil
 }

@@ -12,6 +12,8 @@ type Field interface {
 
 	Blur()
 	Focus() tea.Cmd
+	Toggle() tea.Cmd
+
 	Handle(*model) (bool, tea.Cmd)
 	InheritStyle(lipgloss.Style)
 	Value() any

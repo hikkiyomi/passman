@@ -9,6 +9,7 @@ import (
 type TextInput struct {
 	textinput textinput.Model
 	style     lipgloss.Style
+	isFocused bool
 }
 
 func newTextInputField(
@@ -46,11 +47,25 @@ func (t *TextInput) Handle(model *model) (bool, tea.Cmd) {
 }
 
 func (t *TextInput) Blur() {
+	t.isFocused = false
 	t.textinput.Blur()
 }
 
 func (t *TextInput) Focus() tea.Cmd {
+	t.isFocused = true
 	return t.textinput.Focus()
+}
+
+func (t *TextInput) Toggle() tea.Cmd {
+	var cmd tea.Cmd
+
+	if t.isFocused {
+		t.Blur()
+	} else {
+		cmd = t.Focus()
+	}
+
+	return cmd
 }
 
 func (t *TextInput) InheritStyle(style lipgloss.Style) {
