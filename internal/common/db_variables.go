@@ -12,4 +12,5 @@ var (
 	Data            string
 	ChosenEncryptor string = "aes"
 	Database        *databases.Database
+	UpdateId        int64
 )

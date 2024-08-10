@@ -68,7 +68,7 @@ func (b Block) View() string {
 	}
 
 	toRender := lipgloss.JoinVertical(
-		lipgloss.Top,
+		lipgloss.Left,
 		views...,
 	)
 

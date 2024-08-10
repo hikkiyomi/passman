@@ -19,6 +19,23 @@ type LoginPasswordForm struct {
 	cmd      *cobra.Command
 }
 
+func ParseValue[T comparable](v *T, placeholder any, model *model, errorMsg string) tea.Cmd {
+	var defaultValue T
+
+	if tmp, ok := placeholder.(T); ok && tmp != defaultValue {
+		*v = tmp
+	} else {
+		return formMessage(
+			model,
+			errorMsg,
+			defaultErrorStyle,
+			3*time.Second,
+		)
+	}
+
+	return nil
+}
+
 func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPasswordForm {
 	widthForNode := 40
 
@@ -47,40 +64,35 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 				currentNode := m.node.(*LoginPasswordForm)
 				values := currentNode.fields[0].Value().([]any)
 
-				service, ok := values[0].(string)
-				if service == "" || !ok {
-					cmd := formMessage(
-						m,
-						"Bad service. It should be non-empty and string.",
-						defaultErrorStyle,
-						3*time.Second,
-					)
+				var service string
+				var login string
+				var password string
 
-					return false, cmd
+				if serviceMsgCmd := ParseValue(
+					&service,
+					values[0],
+					m,
+					"Bad service. It should be non-empty and string.",
+				); serviceMsgCmd != nil {
+					return false, serviceMsgCmd
 				}
 
-				login, ok := values[1].(string)
-				if login == "" || !ok {
-					cmd := formMessage(
-						m,
-						"Bad login. It should be non-empty and string.",
-						defaultErrorStyle,
-						3*time.Second,
-					)
-
-					return false, cmd
+				if loginMsgCmd := ParseValue(
+					&login,
+					values[1],
+					m,
+					"Bad login. It should be non-empty and string.",
+				); loginMsgCmd != nil {
+					return false, loginMsgCmd
 				}
 
-				password, ok := values[2].(string)
-				if password == "" || !ok {
-					cmd := formMessage(
-						m,
-						"Bad password. It should be non-empty and string.",
-						defaultErrorStyle,
-						3*time.Second,
-					)
-
-					return false, cmd
+				if passwordMsgCmd := ParseValue(
+					&password,
+					values[2],
+					m,
+					"Bad password. It should be non-empty and string.",
+				); passwordMsgCmd != nil {
+					return false, passwordMsgCmd
 				}
 
 				m.userContext.service = service
@@ -102,7 +114,7 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 
 				cmd := formMessage(
 					m,
-					"Successfully saved",
+					"Success",
 					defaultMessageStyle,
 					3*time.Second,
 				)

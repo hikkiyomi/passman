@@ -37,28 +37,25 @@ func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryD
 				currentNode := m.node.(*ArbitraryDataForm)
 				values := currentNode.fields[0].Value().([]any)
 
-				service, ok := values[0].(string)
-				if service == "" || !ok {
-					cmd := formMessage(
-						m,
-						"Bad service. It should be non-empty and string.",
-						defaultErrorStyle,
-						3*time.Second,
-					)
+				var service string
+				var data string
 
-					return false, cmd
+				if serviceMsgCmd := ParseValue(
+					&service,
+					values[0],
+					m,
+					"Bad service. It should be non-empty and string.",
+				); serviceMsgCmd != nil {
+					return false, serviceMsgCmd
 				}
 
-				data, ok := values[1].(string)
-				if data == "" || !ok {
-					cmd := formMessage(
-						m,
-						"Bad data. It should be non-empty and string.",
-						defaultErrorStyle,
-						3*time.Second,
-					)
-
-					return false, cmd
+				if dataMsgCmd := ParseValue(
+					&data,
+					values[1],
+					m,
+					"Bad data. It should be non-empty and string.",
+				); dataMsgCmd != nil {
+					return false, dataMsgCmd
 				}
 
 				m.userContext.service = service
@@ -80,7 +77,7 @@ func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryD
 
 				cmd := formMessage(
 					m,
-					"Successfully saved",
+					"Success",
 					defaultMessageStyle,
 					3*time.Second,
 				)

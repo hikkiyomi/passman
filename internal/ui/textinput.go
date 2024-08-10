@@ -24,7 +24,7 @@ func newTextInputField(
 
 	return &TextInput{
 		textinput: ti,
-		style:     style,
+		style:     style.Inline(true),
 	}
 }
 

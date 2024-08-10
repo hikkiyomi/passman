@@ -8,6 +8,7 @@ import (
 type item struct {
 	title       string
 	description string
+	asRecord    databases.Record
 }
 
 func (i item) Title() string {
@@ -29,10 +30,20 @@ func MapRecordsToItems(records []databases.Record) []list.Item {
 		adding := item{
 			title:       record.Service,
 			description: string(record.Data),
+			asRecord:    record,
 		}
 
 		result = append(result, adding)
 	}
+
+	return result
+}
+
+func MapItemToRecord(it item) databases.Record {
+	result := it.asRecord
+
+	result.Service = it.title
+	result.Data = []byte(it.description)
 
 	return result
 }
