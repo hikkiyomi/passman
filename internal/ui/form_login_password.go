@@ -142,7 +142,7 @@ func (n LoginPasswordForm) View() string {
 		lipgloss.Center,
 		lipgloss.Center,
 		lipgloss.JoinVertical(
-			lipgloss.Top,
+			lipgloss.Center,
 			n.BaseNode.View(),
 			"\n",
 			"Password Strength:\n",
