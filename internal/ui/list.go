@@ -6,18 +6,18 @@ import (
 )
 
 type delegateKeymap struct {
-	copy key.Binding
+	additionalBind key.Binding
 }
 
-func NewGetDelegate() list.DefaultDelegate {
+func NewDelegateWithChangedEnter(bind, desc string) list.DefaultDelegate {
 	delegate := list.NewDefaultDelegate()
 	keymap := delegateKeymap{
-		copy: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "copy to clipboard"),
+		additionalBind: key.NewBinding(
+			key.WithKeys(bind),
+			key.WithHelp(bind, desc),
 		),
 	}
-	delegateHelp := []key.Binding{keymap.copy}
+	delegateHelp := []key.Binding{keymap.additionalBind}
 
 	delegate.ShortHelpFunc = func() []key.Binding {
 		return delegateHelp

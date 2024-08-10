@@ -13,6 +13,7 @@ var UpdateCmd = &cobra.Command{
 		record := common.Database.FindById(common.UpdateId)
 
 		if record != nil {
+			record.Service = common.Service
 			record.Data = []byte(common.Data)
 			common.Database.Update(*record)
 		}
@@ -33,6 +34,8 @@ func init() {
 	UpdateCmd.Flags().Int64Var(&common.UpdateId, "id", 0, "specifies the id of record to be deleted.")
 	UpdateCmd.MarkFlagRequired("id")
 
-	UpdateCmd.Flags().StringVar(&common.Data, "data", "", "specifies the saving data. It can be login, or password, or both. Or something else.")
+	UpdateCmd.Flags().StringVar(&common.Service, "service", "", "specifies new value of the service. In case if you misspelt it.")
+
+	UpdateCmd.Flags().StringVar(&common.Data, "data", "", "specifies new value of the saving data.")
 	UpdateCmd.MarkFlagRequired("data")
 }

@@ -21,13 +21,13 @@ func calcSizes(width, height int, style lipgloss.Style) (int, int) {
 	return width - h, height - v
 }
 
-func NewGetNode(width, height int, listStyle lipgloss.Style) *GetNode {
+func NewGetNode(width, height int, style lipgloss.Style) *GetNode {
 	items := MapRecordsToItems(common.Database.FindAll())
-	listWidth, listHeight := calcSizes(width, height, listStyle)
+	listWidth, listHeight := calcSizes(width, height, style)
 
 	return &GetNode{
-		list:      NewRecordList(items, NewGetDelegate(), listWidth, listHeight),
-		listStyle: listStyle,
+		list:      NewRecordList(items, NewDelegateWithChangedEnter("enter", "copy to clipboard"), listWidth, listHeight),
+		listStyle: style,
 		sizes: Sizes{
 			width:  width,
 			height: height,
@@ -91,9 +91,8 @@ func (n *GetNode) Handle(m *model) (bool, tea.Cmd) {
 		)
 	}
 
-	currentNode := m.node.(*GetNode)
 	cmd := m.rollbackUntil(
-		NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height),
+		NewControlPanelNode(n.sizes.width, n.sizes.height),
 		func(model *model) bool {
 			last := model.nodeHistory[len(model.nodeHistory)-1]
 			_, ok := last.(*ControlPanelNode)

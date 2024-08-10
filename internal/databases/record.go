@@ -12,7 +12,7 @@ type Record struct {
 	Owner   string
 	Service string
 	Data    []byte
-	id      int64
+	Id      int64
 }
 
 type EncryptedRecord struct {
@@ -30,7 +30,7 @@ func (r Record) Encrypt(encryptor encryption.Encryptor) EncryptedRecord {
 	encodedData := base64.StdEncoding.EncodeToString(encryptedData)
 
 	return EncryptedRecord{
-		id:   r.id,
+		id:   r.Id,
 		Data: []byte(encodedData),
 	}
 }
@@ -50,7 +50,7 @@ func (r EncryptedRecord) Decrypt(encryptor encryption.Encryptor) (Record, error)
 			log.Fatalf("Couldn't unmarshal json: %v", jsonErr)
 		}
 
-		result.id = r.id
+		result.Id = r.id
 	}
 
 	return result, err
@@ -63,7 +63,7 @@ func (r Record) MarshalJSON() ([]byte, error) {
 		Service string `json:"service"`
 		Data    string `json:"data"`
 	}{
-		Id:      r.id,
+		Id:      r.Id,
 		Owner:   r.Owner,
 		Service: r.Service,
 		Data:    string(r.Data),
@@ -80,7 +80,7 @@ func (r *Record) UnmarshalJSON(data []byte) error {
 
 	err := json.Unmarshal(data, &input)
 
-	r.id = input.Id
+	r.Id = input.Id
 	r.Owner = input.Owner
 	r.Service = input.Service
 	r.Data = []byte(input.Data)

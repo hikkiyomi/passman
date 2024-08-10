@@ -14,6 +14,25 @@ type ControlPanelNode struct {
 	BaseNode
 }
 
+func tryToOpenDatabase(model *model) (bool, tea.Cmd) {
+	MapUserContextToDatabaseVariables(model.userContext)
+
+	if _, err := os.Stat(common.Path); err != nil {
+		msgCmd := formMessage(
+			model,
+			"There is no database at given path yet.",
+			defaultErrorStyle,
+			3*time.Second,
+		)
+
+		return false, msgCmd
+	}
+
+	actions.GetCmd.PreRun(actions.GetCmd, nil)
+
+	return true, nil
+}
+
 func NewControlPanelNode(width, height int) *ControlPanelNode {
 	widthForNode := 40
 
@@ -33,22 +52,42 @@ func NewControlPanelNode(width, height int) *ControlPanelNode {
 		newChoice(
 			"Get",
 			func(model *model) (bool, tea.Cmd) {
-				MapUserContextToDatabaseVariables(model.userContext)
-
-				if _, err := os.Stat(common.Path); err != nil {
-					msgCmd := formMessage(
-						model,
-						"There is no database at given path yet.",
-						defaultErrorStyle,
-						3*time.Second,
-					)
-
-					return false, msgCmd
+				if success, cmd := tryToOpenDatabase(model); !success {
+					return success, cmd
 				}
-				actions.GetCmd.PreRun(actions.GetCmd, nil)
 
 				currentNode := model.node.(*ControlPanelNode)
-				model.SetNode(NewGetNode(currentNode.sizes.width, currentNode.sizes.height, defaultListStyle))
+
+				model.SetNode(
+					NewGetNode(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						defaultListStyle,
+					),
+				)
+
+				return true, nil
+			},
+			defaultUnfocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+		),
+		newChoice(
+			"Update",
+			func(model *model) (bool, tea.Cmd) {
+				if success, cmd := tryToOpenDatabase(model); !success {
+					return success, cmd
+				}
+
+				currentNode := model.node.(*ControlPanelNode)
+
+				model.SetNode(
+					NewUpdateNode(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						defaultListStyle,
+						actions.UpdateCmd,
+					),
+				)
 
 				return true, nil
 			},

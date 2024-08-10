@@ -77,7 +77,7 @@ func (d *Database) Insert(record *Record) {
 		log.Fatalf("Insert error: %v", err)
 	}
 
-	record.id, err = insertResult.LastInsertId()
+	record.Id, err = insertResult.LastInsertId()
 	if err != nil {
 		log.Fatalf("Couldn't change last inserted id: %v", err)
 	}
@@ -126,7 +126,7 @@ func (d *Database) FindById(id int64) *Record {
 	var result *Record
 
 	for _, record := range d.FindAll() {
-		if record.id == id {
+		if record.Id == id {
 			result = &record
 			break
 		}
@@ -145,7 +145,7 @@ func (d *Database) exists(id int64) bool {
 
 // Updates the data in `storage` table matching by id.
 func (d *Database) Update(record Record) {
-	if !d.exists(record.id) {
+	if !d.exists(record.Id) {
 		return
 	}
 
@@ -168,7 +168,7 @@ func (d *Database) Update(record Record) {
 
 // Delete record from `storage` table matching by id.
 func (d *Database) Delete(record Record) {
-	if !d.exists(record.id) {
+	if !d.exists(record.Id) {
 		return
 	}
 
@@ -177,7 +177,7 @@ func (d *Database) Delete(record Record) {
 		DELETE FROM storage
 		WHERE id = ?;
 		`,
-		record.id,
+		record.Id,
 	)
 
 	if err != nil {
