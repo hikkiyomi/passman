@@ -151,6 +151,11 @@ func NewFilePicker(
 	}
 }
 
+func (f *FilePicker) Clear() {
+	// Shallow copying textinput without clearing so it will save a database name.
+	*f = *NewFilePicker(f.sizes.width, f.sizes.height, f.createNew, f.textinput)
+}
+
 func (f *FilePicker) Init() tea.Cmd {
 	return f.filePickerAdapter.Init()
 }

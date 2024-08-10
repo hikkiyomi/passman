@@ -15,6 +15,7 @@ type Node interface {
 	View() string
 
 	Handle(*model) (bool, tea.Cmd)
+	Clear()
 }
 
 type baseNodeKeymap struct {
@@ -60,6 +61,10 @@ func newBaseNode(width, height int, choices ...Field) BaseNode {
 		help:   help.New(),
 		keymap: defaultBaseNodeKeymap,
 	}
+}
+
+func (n *BaseNode) Clear() {
+	*n = newBaseNode(n.sizes.width, n.sizes.height, n.fields...)
 }
 
 func (n *BaseNode) Handle(model *model) (bool, tea.Cmd) {

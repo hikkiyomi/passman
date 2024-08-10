@@ -16,6 +16,7 @@ import (
 type LoginPasswordForm struct {
 	BaseNode
 	progress progress.Model
+	cmd      *cobra.Command
 }
 
 func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPasswordForm {
@@ -42,14 +43,14 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 		),
 		newChoice(
 			"SAVE",
-			func(model *model) (bool, tea.Cmd) {
-				currentNode := model.node.(*LoginPasswordForm)
+			func(m *model) (bool, tea.Cmd) {
+				currentNode := m.node.(*LoginPasswordForm)
 				values := currentNode.fields[0].Value().([]any)
 
 				service, ok := values[0].(string)
 				if service == "" || !ok {
 					cmd := formMessage(
-						model,
+						m,
 						"Bad service. It should be non-empty and string.",
 						defaultErrorStyle,
 						3*time.Second,
@@ -61,7 +62,7 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 				login, ok := values[1].(string)
 				if login == "" || !ok {
 					cmd := formMessage(
-						model,
+						m,
 						"Bad login. It should be non-empty and string.",
 						defaultErrorStyle,
 						3*time.Second,
@@ -73,7 +74,7 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 				password, ok := values[2].(string)
 				if password == "" || !ok {
 					cmd := formMessage(
-						model,
+						m,
 						"Bad password. It should be non-empty and string.",
 						defaultErrorStyle,
 						3*time.Second,
@@ -82,22 +83,31 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 					return false, cmd
 				}
 
-				model.userContext.service = service
-				model.userContext.data = fmt.Sprintf("login: %s, password: %s", login, password)
-				MapUserContextToDatabaseVariables(model.userContext)
+				m.userContext.service = service
+				m.userContext.data = fmt.Sprintf("login: %s, password: %s", login, password)
+				MapUserContextToDatabaseVariables(m.userContext)
 
 				command.PreRun(command, nil)
 				command.Run(command, nil)
-				model.SetNode(NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height))
+
+				rollbackCmd := m.rollbackUntil(
+					NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height),
+					func(model *model) bool {
+						last := model.nodeHistory[len(model.nodeHistory)-1]
+						_, ok := last.(*ControlPanelNode)
+
+						return ok
+					},
+				)
 
 				cmd := formMessage(
-					model,
+					m,
 					"Successfully saved",
 					defaultMessageStyle,
 					3*time.Second,
 				)
 
-				return true, cmd
+				return true, tea.Batch(rollbackCmd, cmd)
 			},
 			defaultUnfocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center).MarginTop(1),
 			defaultFocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center).MarginTop(1),
@@ -107,7 +117,12 @@ func NewLoginPasswordForm(width, height int, command *cobra.Command) *LoginPassw
 	return &LoginPasswordForm{
 		BaseNode: newBaseNode(width, height, fields...),
 		progress: progress.New(progress.WithDefaultGradient()),
+		cmd:      command,
 	}
+}
+
+func (n *LoginPasswordForm) Clear() {
+	*n = *NewLoginPasswordForm(n.sizes.width, n.sizes.height, n.cmd)
 }
 
 func (n *LoginPasswordForm) Update(msg tea.Msg) (Node, tea.Cmd) {

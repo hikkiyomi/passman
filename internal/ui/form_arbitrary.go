@@ -11,6 +11,7 @@ import (
 
 type ArbitraryDataForm struct {
 	BaseNode
+	cmd *cobra.Command
 }
 
 func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryDataForm {
@@ -32,14 +33,14 @@ func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryD
 		),
 		newChoice(
 			"SAVE",
-			func(model *model) (bool, tea.Cmd) {
-				currentNode := model.node.(*ArbitraryDataForm)
+			func(m *model) (bool, tea.Cmd) {
+				currentNode := m.node.(*ArbitraryDataForm)
 				values := currentNode.fields[0].Value().([]any)
 
 				service, ok := values[0].(string)
 				if service == "" || !ok {
 					cmd := formMessage(
-						model,
+						m,
 						"Bad service. It should be non-empty and string.",
 						defaultErrorStyle,
 						3*time.Second,
@@ -51,7 +52,7 @@ func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryD
 				data, ok := values[1].(string)
 				if data == "" || !ok {
 					cmd := formMessage(
-						model,
+						m,
 						"Bad data. It should be non-empty and string.",
 						defaultErrorStyle,
 						3*time.Second,
@@ -60,22 +61,31 @@ func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryD
 					return false, cmd
 				}
 
-				model.userContext.service = service
-				model.userContext.data = data
-				MapUserContextToDatabaseVariables(model.userContext)
+				m.userContext.service = service
+				m.userContext.data = data
+				MapUserContextToDatabaseVariables(m.userContext)
 
 				command.PreRun(command, nil)
 				command.Run(command, nil)
-				model.SetNode(NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height))
+
+				rollbackCmd := m.rollbackUntil(
+					NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height),
+					func(model *model) bool {
+						last := model.nodeHistory[len(model.nodeHistory)-1]
+						_, ok := last.(*ControlPanelNode)
+
+						return ok
+					},
+				)
 
 				cmd := formMessage(
-					model,
+					m,
 					"Successfully saved",
 					defaultMessageStyle,
 					3*time.Second,
 				)
 
-				return true, cmd
+				return true, tea.Batch(rollbackCmd, cmd)
 			},
 			defaultUnfocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center).MarginTop(1),
 			defaultFocusedStyle.Width(widthForNode).AlignHorizontal(lipgloss.Center).MarginTop(1),
@@ -84,7 +94,12 @@ func NewArbitraryDataForm(width, height int, command *cobra.Command) *ArbitraryD
 
 	return &ArbitraryDataForm{
 		BaseNode: newBaseNode(width, height, fields...),
+		cmd:      command,
 	}
+}
+
+func (n *ArbitraryDataForm) Clear() {
+	*n = *NewArbitraryDataForm(n.sizes.width, n.sizes.height, n.cmd)
 }
 
 func (n *ArbitraryDataForm) Update(msg tea.Msg) (Node, tea.Cmd) {

@@ -67,6 +67,10 @@ func NewLoginNode(width, height int) *LoginNode {
 	}
 }
 
+func (n *LoginNode) Clear() {
+	*n = *NewLoginNode(n.sizes.width, n.sizes.height)
+}
+
 func (n *LoginNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd

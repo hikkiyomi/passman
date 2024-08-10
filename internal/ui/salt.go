@@ -74,6 +74,10 @@ func NewSaltNode(width, height int) *SaltNode {
 	}
 }
 
+func (n *SaltNode) Clear() {
+	*n = *NewSaltNode(n.sizes.width, n.sizes.height)
+}
+
 func (n *SaltNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd

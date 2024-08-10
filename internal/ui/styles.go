@@ -10,4 +10,5 @@ var (
 	defaultBlockStyle      = lipgloss.NewStyle().Margin(1, 0, 1)
 	defaultMessageStyle    = lipgloss.NewStyle().Background(lipgloss.Color("#007F16"))
 	defaultErrorStyle      = lipgloss.NewStyle().Background(lipgloss.Color("#9D0019"))
+	defaultListStyle       = lipgloss.NewStyle().Margin(1, 2)
 )

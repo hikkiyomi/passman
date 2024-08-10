@@ -61,6 +61,10 @@ func NewDatabaseSelectionNode(width, height int) *DatabaseSelectionNode {
 	}
 }
 
+func (n *DatabaseSelectionNode) Clear() {
+	*n = *NewDatabaseSelectionNode(n.sizes.width, n.sizes.height)
+}
+
 func (n *DatabaseSelectionNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd

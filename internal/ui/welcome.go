@@ -39,6 +39,10 @@ func NewWelcomeNode(width, height int) *WelcomeNode {
 	}
 }
 
+func (n *WelcomeNode) Clear() {
+	*n = *NewWelcomeNode(n.sizes.width, n.sizes.height)
+}
+
 func (n *WelcomeNode) Update(msg tea.Msg) (Node, tea.Cmd) {
 	cmd := updateNode(&n.BaseNode, msg)
 	return n, cmd

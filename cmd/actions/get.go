@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/hikkiyomi/passman/internal/common"
 	"github.com/hikkiyomi/passman/internal/databases"
@@ -11,9 +12,15 @@ import (
 )
 
 var GetCmd = &cobra.Command{
-	Use:    "get",
-	Short:  "Fetches data from database.",
-	PreRun: initDatabase,
+	Use:   "get",
+	Short: "Fetches data from database.",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if _, err := os.Stat(common.Path); err == nil {
+			initDatabase(cmd, args)
+		} else {
+			log.Fatal("Such database does not exist.")
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		result := make([]databases.Record, 0)
 

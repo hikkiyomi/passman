@@ -8,6 +8,7 @@ import (
 
 type SaveNode struct {
 	BaseNode
+	cmd *cobra.Command
 }
 
 func NewSaveNode(width, height int, command *cobra.Command) *SaveNode {
@@ -39,7 +40,12 @@ func NewSaveNode(width, height int, command *cobra.Command) *SaveNode {
 
 	return &SaveNode{
 		BaseNode: newBaseNode(width, height, fields...),
+		cmd:      command,
 	}
+}
+
+func (n *SaveNode) Clear() {
+	*n = *NewSaveNode(n.sizes.width, n.sizes.height, n.cmd)
 }
 
 func (n *SaveNode) Update(msg tea.Msg) (Node, tea.Cmd) {

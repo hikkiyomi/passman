@@ -88,6 +88,29 @@ func (m *model) SetNode(node Node) {
 	m.node = node
 }
 
+// Rollbacks history until predicate is true and sets newNode as model.node
+func (m *model) rollbackUntil(
+	newNode Node,
+	predicate func(model *model) bool,
+) tea.Cmd {
+	for len(m.nodeHistory) > 0 {
+		found := false
+
+		if predicate(m) {
+			found = true
+		}
+
+		m.nodeHistory = m.nodeHistory[:len(m.nodeHistory)-1]
+
+		if found {
+			break
+		}
+	}
+
+	m.node = newNode
+	return m.node.Init()
+}
+
 func (m model) Init() tea.Cmd {
 	return m.node.Init()
 }
@@ -127,6 +150,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.node = m.nodeHistory[length-1]
 			m.nodeHistory = m.nodeHistory[:length-1]
+			m.node.Clear()
+			cmds = append(cmds, m.node.Init())
 
 			// Perhaps it is really unnecessary.
 			// Apparently without clearing the screen
