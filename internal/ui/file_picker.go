@@ -12,7 +12,9 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/hikkiyomi/passman/cmd/actions"
 	"github.com/hikkiyomi/passman/internal/common"
+	"github.com/hikkiyomi/passman/internal/exporters"
 )
 
 type filePickerAdapter struct {
@@ -256,7 +258,7 @@ func (f FilePicker) View() string {
 	)
 }
 
-func (f *FilePicker) checkIfNameIsEmpty() bool {
+func (f *FilePicker) checkIfInputIsEmpty() bool {
 	if f.textinput == nil {
 		return false
 	}
@@ -267,7 +269,7 @@ func (f *FilePicker) checkIfNameIsEmpty() bool {
 }
 
 func (f FilePicker) chooseErrorMessage() string {
-	if f.checkIfNameIsEmpty() {
+	if f.checkIfInputIsEmpty() {
 		return "Please provide a name for your database."
 	}
 
@@ -291,12 +293,7 @@ func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
 	return f.handler(f, model)
 }
 
-func handlerForDatabaseSelection(f *FilePicker, model *model) (bool, tea.Cmd) {
-	if !f.filePickerAdapter.isFocused {
-		return false, nil
-	}
-
-	var msgCmd tea.Cmd = nil
+func updateFilePicker(f *FilePicker) (*FilePicker, tea.Cmd) {
 	node, cmd := f.Update(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
 
 	tempNode, ok := node.(*FilePicker)
@@ -304,9 +301,18 @@ func handlerForDatabaseSelection(f *FilePicker, model *model) (bool, tea.Cmd) {
 		log.Fatal("Couldn't convert node into FilePicker")
 	}
 
-	f = tempNode
+	return tempNode, cmd
+}
 
-	if f.selected == "" || f.checkIfNameIsEmpty() {
+func handlerForDatabaseSelection(f *FilePicker, model *model) (bool, tea.Cmd) {
+	if !f.filePickerAdapter.isFocused {
+		return false, nil
+	}
+
+	var msgCmd tea.Cmd
+	f, cmd := updateFilePicker(f)
+
+	if f.selected == "" || f.checkIfInputIsEmpty() {
 		msgCmd = formMessage(
 			model,
 			f.chooseErrorMessage(),
@@ -334,31 +340,64 @@ func handlerForImporting(f *FilePicker, model *model) (bool, tea.Cmd) {
 		return false, nil
 	}
 
-	var msgCmd tea.Cmd = nil
-	node, cmd := f.Update(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
+	var msgCmd tea.Cmd
+	f, cmd := updateFilePicker(f)
 
-	tempNode, ok := node.(*FilePicker)
-	if !ok {
-		log.Fatal("Couldn't convert node into FilePicker")
-	}
+	common.ImportFrom = f.formPath()
+	common.Browser = f.textinput.textinput.Value()
+	common.ImporterType = ""
+	MapUserContextToDatabaseVariables(model.userContext)
 
-	f = tempNode
-
-	if f.selected == "" || f.checkIfNameIsEmpty() {
+	if _, err := exporters.GetExporter(common.ImporterType, common.ImportFrom, common.Browser); err != nil {
 		msgCmd = formMessage(
 			model,
-			f.chooseErrorMessage(),
+			"Couldn't get an importer. Check the extension of picked file. It should be csv/tsv/json.",
 			defaultErrorStyle,
 			3*time.Second,
 		)
 	} else {
-		common.ImportFrom = f.selected
-		common.Browser = f.textinput.textinput.Value()
-		common.ImporterType = ""
+		actions.ImportCmd.PreRun(actions.ImportCmd, nil)
+		actions.ImportCmd.Run(actions.ImportCmd, nil)
 
 		msgCmd = formMessage(
 			model,
 			"Imported",
+			defaultMessageStyle,
+			3*time.Second,
+		)
+
+		model.SetNode(NewControlPanelNode(f.sizes.width, f.sizes.height))
+	}
+
+	return true, tea.Batch(cmd, msgCmd)
+}
+
+func handlerForExporting(f *FilePicker, model *model) (bool, tea.Cmd) {
+	if !f.filePickerAdapter.isFocused {
+		return false, nil
+	}
+
+	var msgCmd tea.Cmd
+	f, cmd := updateFilePicker(f)
+
+	common.ExportInto = f.formPath()
+	common.ExporterType = ""
+	MapUserContextToDatabaseVariables(model.userContext)
+
+	if _, err := exporters.GetExporter(common.ExporterType, common.ExportInto, ""); err != nil {
+		msgCmd = formMessage(
+			model,
+			"Couldn't get an exporter. Check the extension of your new file. It should be csv/tsv/json.",
+			defaultErrorStyle,
+			3*time.Second,
+		)
+	} else {
+		actions.ExportCmd.PreRun(actions.ExportCmd, nil)
+		actions.ExportCmd.Run(actions.ExportCmd, nil)
+
+		msgCmd = formMessage(
+			model,
+			"Exported",
 			defaultMessageStyle,
 			3*time.Second,
 		)

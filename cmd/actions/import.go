@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"log"
+
 	"github.com/hikkiyomi/passman/internal/common"
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
@@ -11,7 +13,11 @@ var ImportCmd = &cobra.Command{
 	Short:  "Imports data from given file.",
 	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		importer := exporters.GetExporter(common.ImporterType, common.ImportFrom, common.Browser)
+		importer, err := exporters.GetExporter(common.ImporterType, common.ImportFrom, common.Browser)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		importingData := importer.Import()
 
 		for _, record := range importingData {

@@ -142,6 +142,34 @@ func NewControlPanelNode(width, height int) *ControlPanelNode {
 			defaultUnfocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
 			defaultFocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
 		),
+		newChoice(
+			"Export",
+			func(model *model) (bool, tea.Cmd) {
+				if success, cmd := tryToOpenDatabase(model); !success {
+					return success, cmd
+				}
+
+				currentNode := model.node.(*ControlPanelNode)
+
+				model.SetNode(
+					NewFilePicker(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						true,
+						newTextInputField(
+							"Export into: ",
+							textinput.EchoNormal,
+							defaultTextInputStyle,
+						),
+						handlerForExporting,
+					),
+				)
+
+				return true, nil
+			},
+			defaultUnfocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+		),
 	}
 
 	return &ControlPanelNode{

@@ -1,7 +1,7 @@
 package exporters
 
 import (
-	"log"
+	"errors"
 	"strings"
 
 	"github.com/hikkiyomi/passman/internal/exporters/mappers"
@@ -15,7 +15,7 @@ func addExtensionToPath(path, ext string) string {
 	return path + "." + ext
 }
 
-func GetExporter(exporter, path, browser string) Exporter {
+func GetExporter(exporter, path, browser string) (Exporter, error) {
 	var result Exporter
 
 	switch {
@@ -26,8 +26,8 @@ func GetExporter(exporter, path, browser string) Exporter {
 	case exporter == "json" || strings.HasSuffix(path, ".json"):
 		result = NewJsonExporter(addExtensionToPath(path, "json"))
 	default:
-		log.Fatal("Could not get exporter by given type.")
+		return nil, errors.New("couldn't get an exporter of given type")
 	}
 
-	return result
+	return result, nil
 }

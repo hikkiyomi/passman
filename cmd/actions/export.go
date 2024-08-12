@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"log"
+
 	"github.com/hikkiyomi/passman/internal/common"
 	"github.com/hikkiyomi/passman/internal/exporters"
 	"github.com/spf13/cobra"
@@ -11,7 +13,11 @@ var ExportCmd = &cobra.Command{
 	Short:  "Exports data into given file.",
 	PreRun: initDatabase,
 	Run: func(cmd *cobra.Command, args []string) {
-		exporter := exporters.GetExporter(common.ExporterType, common.ExportInto, "")
+		exporter, err := exporters.GetExporter(common.ExporterType, common.ExportInto, "")
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		exportingData := common.Database.FindAll()
 
 		exporter.Export(exportingData)
