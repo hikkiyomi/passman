@@ -12,6 +12,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/hikkiyomi/passman/internal/common"
 )
 
 type filePickerAdapter struct {
@@ -86,6 +87,7 @@ type FilePicker struct {
 	selected  string
 	sizes     Sizes
 	createNew bool
+	handler   func(*FilePicker, *model) (bool, tea.Cmd)
 }
 
 type fpKeymapAdapter struct {
@@ -119,6 +121,7 @@ func NewFilePicker(
 	height int,
 	createNew bool,
 	textInputField *TextInput,
+	handler func(*FilePicker, *model) (bool, tea.Cmd),
 ) *FilePicker {
 	fp := filepicker.New()
 	fp.CurrentDirectory, _ = os.UserHomeDir()
@@ -148,12 +151,13 @@ func NewFilePicker(
 			height: height,
 		},
 		createNew: createNew,
+		handler:   handler,
 	}
 }
 
 func (f *FilePicker) Clear() {
 	// Shallow copying textinput without clearing so it will save a database name.
-	*f = *NewFilePicker(f.sizes.width, f.sizes.height, f.createNew, f.textinput)
+	*f = *NewFilePicker(f.sizes.width, f.sizes.height, f.createNew, f.textinput, f.handler)
 }
 
 func (f *FilePicker) Init() tea.Cmd {
@@ -284,6 +288,10 @@ func (f *FilePicker) formPath() string {
 }
 
 func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
+	return f.handler(f, model)
+}
+
+func handlerForDatabaseSelection(f *FilePicker, model *model) (bool, tea.Cmd) {
 	if !f.filePickerAdapter.isFocused {
 		return false, nil
 	}
@@ -315,8 +323,47 @@ func (f *FilePicker) Handle(model *model) (bool, tea.Cmd) {
 			3*time.Second,
 		)
 
-		currentNode := model.node.(*FilePicker)
-		model.SetNode(NewControlPanelNode(currentNode.sizes.width, currentNode.sizes.height))
+		model.SetNode(NewControlPanelNode(f.sizes.width, f.sizes.height))
+	}
+
+	return true, tea.Batch(cmd, msgCmd)
+}
+
+func handlerForImporting(f *FilePicker, model *model) (bool, tea.Cmd) {
+	if !f.filePickerAdapter.isFocused {
+		return false, nil
+	}
+
+	var msgCmd tea.Cmd = nil
+	node, cmd := f.Update(tea.KeyMsg(tea.Key{Type: tea.KeyEnter}))
+
+	tempNode, ok := node.(*FilePicker)
+	if !ok {
+		log.Fatal("Couldn't convert node into FilePicker")
+	}
+
+	f = tempNode
+
+	if f.selected == "" || f.checkIfNameIsEmpty() {
+		msgCmd = formMessage(
+			model,
+			f.chooseErrorMessage(),
+			defaultErrorStyle,
+			3*time.Second,
+		)
+	} else {
+		common.ImportFrom = f.selected
+		common.Browser = f.textinput.textinput.Value()
+		common.ImporterType = ""
+
+		msgCmd = formMessage(
+			model,
+			"Imported",
+			defaultMessageStyle,
+			3*time.Second,
+		)
+
+		model.SetNode(NewControlPanelNode(f.sizes.width, f.sizes.height))
 	}
 
 	return true, tea.Batch(cmd, msgCmd)

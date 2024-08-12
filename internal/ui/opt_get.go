@@ -26,7 +26,7 @@ func NewGetNode(width, height int, style lipgloss.Style) *GetNode {
 	listWidth, listHeight := calcSizes(width, height, style)
 
 	return &GetNode{
-		list:      NewRecordList(items, NewDelegateWithChangedEnter("enter", "copy to clipboard"), listWidth, listHeight),
+		list:      NewRecordList(items, NewDelegateWithChangedBind("enter", "copy to clipboard"), listWidth, listHeight),
 		listStyle: style,
 		sizes: Sizes{
 			width:  width,

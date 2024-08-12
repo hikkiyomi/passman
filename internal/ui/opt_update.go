@@ -20,7 +20,7 @@ func NewUpdateNode(width, height int, style lipgloss.Style, command *cobra.Comma
 	listWidth, listHeight := calcSizes(width, height, style)
 
 	return &UpdateNode{
-		list:      NewRecordList(items, NewDelegateWithChangedEnter("enter", "update"), listWidth, listHeight),
+		list:      NewRecordList(items, NewDelegateWithChangedBind("enter", "update"), listWidth, listHeight),
 		listStyle: style,
 		sizes: Sizes{
 			width:  width,

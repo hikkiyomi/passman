@@ -27,6 +27,7 @@ func NewDatabaseSelectionNode(width, height int) *DatabaseSelectionNode {
 							textinput.EchoNormal,
 							defaultTextInputStyle.Inline(true).MaxWidth(50),
 						),
+						handlerForDatabaseSelection,
 					),
 				)
 
@@ -46,6 +47,7 @@ func NewDatabaseSelectionNode(width, height int) *DatabaseSelectionNode {
 						currentNode.sizes.height,
 						false,
 						nil,
+						handlerForDatabaseSelection,
 					),
 				)
 

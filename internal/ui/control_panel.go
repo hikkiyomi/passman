@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/hikkiyomi/passman/cmd/actions"
@@ -86,6 +87,53 @@ func NewControlPanelNode(width, height int) *ControlPanelNode {
 						currentNode.sizes.height,
 						defaultListStyle,
 						actions.UpdateCmd,
+					),
+				)
+
+				return true, nil
+			},
+			defaultUnfocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+		),
+		newChoice(
+			"Remove",
+			func(model *model) (bool, tea.Cmd) {
+				if success, cmd := tryToOpenDatabase(model); !success {
+					return success, cmd
+				}
+
+				currentNode := model.node.(*ControlPanelNode)
+
+				model.SetNode(
+					NewRemoveNode(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						defaultListStyle,
+						actions.UpdateCmd,
+					),
+				)
+
+				return true, nil
+			},
+			defaultUnfocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+			defaultFocusedStyle.Width(widthForNode-4).AlignHorizontal(lipgloss.Center),
+		),
+		newChoice(
+			"Import",
+			func(model *model) (bool, tea.Cmd) {
+				currentNode := model.node.(*ControlPanelNode)
+
+				model.SetNode(
+					NewFilePicker(
+						currentNode.sizes.width,
+						currentNode.sizes.height,
+						false,
+						newTextInputField(
+							"Browser type (empty/chrome/firefox): ",
+							textinput.EchoNormal,
+							defaultTextInputStyle,
+						),
+						handlerForImporting,
 					),
 				)
 

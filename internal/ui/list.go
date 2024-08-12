@@ -3,13 +3,15 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/hikkiyomi/passman/internal/databases"
 )
 
 type delegateKeymap struct {
 	additionalBind key.Binding
 }
 
-func NewDelegateWithChangedEnter(bind, desc string) list.DefaultDelegate {
+func NewDelegateWithChangedBind(bind, desc string) list.DefaultDelegate {
 	delegate := list.NewDefaultDelegate()
 	keymap := delegateKeymap{
 		additionalBind: key.NewBinding(
@@ -24,6 +26,32 @@ func NewDelegateWithChangedEnter(bind, desc string) list.DefaultDelegate {
 	}
 	delegate.FullHelpFunc = func() [][]key.Binding {
 		return [][]key.Binding{delegateHelp}
+	}
+
+	return delegate
+}
+
+func NewDelegateForRemove(bind, desc string, database *databases.Database) list.DefaultDelegate {
+	delegate := NewDelegateWithChangedBind(bind, desc)
+
+	delegate.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
+		var it item
+
+		if tmpItem, ok := m.SelectedItem().(item); ok {
+			it = tmpItem
+		} else {
+			return nil
+		}
+
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			if msg.String() == bind && !m.IsFiltered() {
+				m.RemoveItem(m.Index())
+				database.Delete(it.rawContent)
+			}
+		}
+
+		return nil
 	}
 
 	return delegate
