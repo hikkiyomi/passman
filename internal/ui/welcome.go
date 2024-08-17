@@ -10,10 +10,16 @@ type WelcomeNode struct {
 }
 
 func NewWelcomeNode(width, height int) *WelcomeNode {
-	widthForNode := 16
+	widthForNode := 40
+
+	welcomeText := " _ __   __ _ ___ ___ _ __ ___   __ _ _ __  \n" +
+		"| '_ \\ / _` / __/ __| '_ ` _ \\ / _` | '_ \\ \n" +
+		"| |_) | (_| \\__ \\__ \\ | | | | | (_| | | | |\n" +
+		"| .__/ \\__,_|___/___/_| |_| |_|\\__,_|_| |_|\n" +
+		"|_|                                        "
 
 	fields := []Field{
-		newText("WELCOME TO PASSMAN", defaultHeaderTextStyle),
+		newText(welcomeText, defaultHeaderTextStyle),
 		newChoice(
 			"Login",
 			func(model *model) (bool, tea.Cmd) {
