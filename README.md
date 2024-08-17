@@ -1,7 +1,9 @@
 Passman
 =======
 
-A CLI/TUI application for managing your passwords and other data using SQLite and AES-256 encryption.
+A CLI/TUI application for managing your passwords and other data using SQLite and AES-256 encryption with Bubble Tea framework.
+
+![Preview](assets/preview.png "Preview")
 
 ![GitHub Release](https://img.shields.io/github/v/release/hikkiyomi/passman)
 
