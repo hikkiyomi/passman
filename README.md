@@ -9,7 +9,7 @@ A CLI/TUI application for managing your passwords and other data using SQLite an
 
 ## Installation
 
-- Download Go language.
+- Download and install Go language.
 
 - You can run `go install github.com/hikkiyomi/passman@latest` \
   or clone this repository and run `make`.
@@ -32,8 +32,10 @@ Salt is basically your second password, so you want to keep it far away from pry
 It is recommended to start Passman with passing your salt like this: \
 `PASSMAN_SALT=<salt> passman ...` \
 or \
-`YOUR_ENV_VARIABLE=<salt> passman ... --salt=YOUR_ENV_VARIABLE ...`, \
-although you can export this variable before running the application.
+`YOUR_ENV_VARIABLE=<salt> passman ... --salt=YOUR_ENV_VARIABLE ...` \
+
+Also you can export this variable before running the application, \
+although this is less secure than the option above.
 
 ### Running
 
